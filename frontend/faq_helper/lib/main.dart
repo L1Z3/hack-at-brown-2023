@@ -1,3 +1,6 @@
+import 'package:faq_helper/models/autocompleteRes.dart';
+import 'package:faq_helper/secret.dart';
+import 'package:faq_helper/utilities/network.dart';
 import 'package:faq_helper/values/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -25,7 +28,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'FAiQ'),
     );
   }
 }
@@ -40,18 +43,27 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
   final _searchPlaceTextController = TextEditingController();
+  bool _isSearching = false;
 
-  void _incrementCounter() {
+  void autocompletePlace(String query) async {
+    List<PlacesAutocompletion> suggestions =
+        await NetworkUtility.getAutocompletions(query);
+    suggestions.forEach((element) {
+      print(element.title);
+      print(element.address);
+    });
+  }
+
+  void _focusSearch() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _isSearching = true;
+    });
+  }
+
+  void _defocusSearch() {
+    setState(() {
+      _isSearching = false;
     });
   }
 
@@ -71,76 +83,92 @@ class _MyHomePageState extends State<MyHomePage> {
               end: Alignment.bottomRight,
             ),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(30.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const Text(
-                  "FAiQ.",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 50,
-                  ),
-                  textAlign: TextAlign.start,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
-                  child: TextField(
-                    controller: _searchPlaceTextController,
-                    autofocus: false,
-                    showCursor: true,
-                    onSubmitted: (str) {},
-                    // style: TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
-                      hintText: 'Where are you going?',
-                      filled: true,
-                      fillColor: searchBarColor,
-                      border: InputBorder.none,
-                      // focusedBorder: OutlineInputBorder(
-                      //   borderSide: const BorderSide(
-                      //     width: 0
-                      //   ),
-                      // ),
-                      // border: OutlineInputBorder(
-                      //   borderSide: const BorderSide(
-                      //     width: 0,
-                      //     color: Colors.transparent,
-                      //   ),
-                      //   borderRadius: BorderRadius.circular(50.0),
-                      // ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(30.0),
+              child: AnimatedContainer(
+                color: _isSearching ? Colors.black : mainGradientEnd,
+                curve: Curves.easeInCirc,
+                duration: const Duration(milliseconds: 500),
+                child: Column(
+                  mainAxisAlignment: _isSearching
+                      ? MainAxisAlignment.start
+                      : MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const Text(
+                      "FAiQ.",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 50,
+                      ),
+                      textAlign: TextAlign.start,
                     ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                const Text(
-                  "Search for any establishment and ask questions based on "
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: TextField(
+                        onTap: _focusSearch,
+                        controller: _searchPlaceTextController,
+                        autofocus: false,
+                        showCursor: true,
+                        onSubmitted: (str) {
+                          autocompletePlace(str);
+                        },
+                        // style: TextStyle(color: Colors.white),
+                        decoration: const InputDecoration(
+                          hintText: 'Where are you going?',
+                          filled: true,
+                          fillColor: searchBarColor,
+                          border: InputBorder.none,
+                          // focusedBorder: OutlineInputBorder(
+                          //   borderSide: const BorderSide(
+                          //     width: 0
+                          //   ),
+                          // ),
+                          // border: OutlineInputBorder(
+                          //   borderSide: const BorderSide(
+                          //     width: 0,
+                          //     color: Colors.transparent,
+                          //   ),
+                          //   borderRadius: BorderRadius.circular(50.0),
+                          // ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    const Text(
+                      "Search for any establishment and ask questions based on "
                       "previous reviews.",
-                  style: TextStyle(
-                    color: Color.fromARGB(150, 255, 255, 255),
-                  ),
+                      style: TextStyle(
+                        color: Color.fromARGB(150, 255, 255, 255),
+                      ),
+                    ),
+                    // Text(
+                    //   '$_counter',
+                    //   style: Theme.of(context).textTheme.headlineMedium,
+                    // ),
+                  ],
                 ),
-                // Text(
-                //   '$_counter',
-                //   style: Theme.of(context).textTheme.headlineMedium,
-                // ),
-              ],
+              ),
             ),
           ),
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: _incrementCounter,
-      //   tooltip: 'Increment',
-      //   child: const Icon(Icons.add),
-      // ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            _isSearching = !_isSearching;
+          });
+        },
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
