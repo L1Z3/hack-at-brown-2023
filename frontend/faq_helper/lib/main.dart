@@ -87,73 +87,97 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Padding(
               padding: const EdgeInsets.all(30.0),
               child: AnimatedContainer(
-                color: _isSearching ? Colors.black : mainGradientEnd,
+                // color: _isSearching ? Colors.black : mainGradientEnd,
                 curve: Curves.easeInCirc,
+                height: double.infinity,
                 duration: const Duration(milliseconds: 500),
-                child: Column(
-                  mainAxisAlignment: _isSearching
-                      ? MainAxisAlignment.start
-                      : MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    const Text(
-                      "FAiQ.",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 50,
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(50),
-                      child: TextField(
-                        onTap: _focusSearch,
-                        controller: _searchPlaceTextController,
-                        autofocus: false,
-                        showCursor: true,
-                        onSubmitted: (str) {
-                          autocompletePlace(str);
-                        },
-                        // style: TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
-                          hintText: 'Where are you going?',
-                          filled: true,
-                          fillColor: searchBarColor,
-                          border: InputBorder.none,
-                          // focusedBorder: OutlineInputBorder(
-                          //   borderSide: const BorderSide(
-                          //     width: 0
-                          //   ),
-                          // ),
-                          // border: OutlineInputBorder(
-                          //   borderSide: const BorderSide(
-                          //     width: 0,
-                          //     color: Colors.transparent,
-                          //   ),
-                          //   borderRadius: BorderRadius.circular(50.0),
-                          // ),
+                child: AnimatedAlign(
+                  alignment: _isSearching ? Alignment.topCenter : Alignment.bottomCenter,
+                  duration: const Duration(seconds: 1),
+                  curve: Curves.fastOutSlowIn,
+                  child: Column(
+                    // mainAxisAlignment: _isSearching
+                    //     ? MainAxisAlignment.start
+                    //     : MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      AnimatedDefaultTextStyle(
+                        style: _isSearching
+                            ? const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 20,
+                              )
+                            : const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 50,
+                              ),
+                        curve: Curves.easeOutCirc,
+                        duration: const Duration(milliseconds: 200),
+                        child: const Text(
+                          "FAiQ.",
+                          textAlign: TextAlign.start,
                         ),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    const Text(
-                      "Search for any establishment and ask questions based on "
-                      "previous reviews.",
-                      style: TextStyle(
-                        color: Color.fromARGB(150, 255, 255, 255),
+                      const SizedBox(
+                        height: 20,
                       ),
-                    ),
-                    // Text(
-                    //   '$_counter',
-                    //   style: Theme.of(context).textTheme.headlineMedium,
-                    // ),
-                  ],
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(50),
+                        child: TextField(
+                          onTap: _focusSearch,
+                          controller: _searchPlaceTextController,
+                          autofocus: false,
+                          showCursor: true,
+                          onSubmitted: (str) {
+                            autocompletePlace(str);
+                          },
+                          // style: TextStyle(color: Colors.white),
+                          decoration: const InputDecoration(
+                            hintText: 'Where are you going?',
+                            filled: true,
+                            fillColor: searchBarColor,
+                            border: InputBorder.none,
+                            // focusedBorder: OutlineInputBorder(
+                            //   borderSide: const BorderSide(
+                            //     width: 0
+                            //   ),
+                            // ),
+                            // border: OutlineInputBorder(
+                            //   borderSide: const BorderSide(
+                            //     width: 0,
+                            //     color: Colors.transparent,
+                            //   ),
+                            //   borderRadius: BorderRadius.circular(50.0),
+                            // ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      const Text(
+                        "Search for any establishment and ask questions based on "
+                        "previous reviews.",
+                        style: TextStyle(
+                          color: Color.fromARGB(150, 255, 255, 255),
+                        ),
+                      ),
+                      AutoCompleteResultCard()
+                      // Container(
+                      //   child: ListView(
+                      //     children: [
+                      //       // AutoCompleteResultCard()
+                      //     ],
+                      //   ),
+                      // ),
+                      // Text(
+                      //   '$_counter',
+                      //   style: Theme.of(context).textTheme.headlineMedium,
+                      // ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -172,3 +196,45 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
+class AutoCompleteResultCard extends StatefulWidget {
+  // final PlacesAutocompletion item;
+  //
+  // const AutoCompleteResultCard({super.key, required this.item});
+
+  @override
+  _AutoCompleteResultCardState createState() => _AutoCompleteResultCardState();
+}
+
+class _AutoCompleteResultCardState extends State<AutoCompleteResultCard> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 100,
+      width: double.infinity,
+      child: MaterialButton(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+        ),
+        elevation: 0,
+        onPressed: () {},
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Title", style: TextStyle(fontSize: 20),),
+                Text("Address", style: TextStyle(fontSize: 20, color: Colors.black45),)
+              ],
+            ),
+            const Icon(Icons.chevron_right_rounded)
+          ],
+        ),
+      ),
+    );
+  }
+}
+
