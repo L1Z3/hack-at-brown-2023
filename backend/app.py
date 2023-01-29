@@ -189,7 +189,7 @@ def get_place_info():
     try:
         name, reviews, address, phone, description, rating, photo = get_reviews_api(place_id, 1)
     except ConnectionError:
-        time.sleep(0.5)
+        time.sleep(3)
         name, reviews, address, phone, description, rating, photo = get_reviews_api(place_id, 1)
     # else:
     #     name, reviews, address, phone, description, rating, photo = get_reviews_api(place_id, num_reviews)
@@ -228,7 +228,11 @@ def get_summary():
     if cur_num_reviews <= 5:
         name, reviews, _, _, _, _, _ = get_place_info_api(place_id)
     else:
-        name, reviews, _, _, _, _, _ = get_reviews_api(place_id, cur_num_reviews)
+        try:
+            name, reviews, _, _, _, _, _ = get_reviews_api(place_id, cur_num_reviews)
+        except ConnectionError:
+            time.sleep(3)
+            name, reviews, _, _, _, _, _ = get_reviews_api(place_id, cur_num_reviews)
     if len(reviews) == 0:
         gpt_summary = "I'm sorry. This place has no reviews."
     else:
@@ -269,7 +273,7 @@ def ask_question():
         try:
             name, reviews, address, number, description, _, _ = get_reviews_api(place_id, cur_num_reviews)
         except ConnectionError:
-            time.sleep(0.5)
+            time.sleep(3)
             name, reviews, address, number, description, _, _ = get_reviews_api(place_id, cur_num_reviews)
     if len(reviews) == 0:
         gpt_answer = "I'm sorry. This place has no reviews."
