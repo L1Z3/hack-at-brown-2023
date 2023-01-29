@@ -71,7 +71,8 @@ def get_reviews_api(place: str, number_of_reviews: int = 5) -> Tuple:
     reviews_data = results[0]["reviews_data"]
     reviews_str_list = []
     for review in reviews_data:
-        reviews_str_list.append(review["review_text"])
+        if review["review_text"] is not None:
+            reviews_str_list.append(review["review_text"])
     # TODO also encode review score?
     return results[0]["name"], reviews_str_list, results[0]["full_address"], results[0]["phone"], results[0][
         "description"], results[0]["rating"], results[0]["photo"]
@@ -88,7 +89,8 @@ def get_place_info_api(place_id: str) -> Tuple:
     reviews_str_list = []
     if "reviews" in data:
         for review in data["reviews"]:
-            reviews_str_list.append(review["text"])
+            if review["text"] is not None:
+                reviews_str_list.append(review["text"])
     description, address, number, rating, photo_id = "None", "None", "None", "None", "None"
     if "editorial_summary" in data:
         description = data["editorial_summary"]["overview"]
