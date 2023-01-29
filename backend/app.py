@@ -53,8 +53,6 @@ client = ApiClient(api_key=outscraper_api_key)
 
 # TODO what if we made it summarize sets of about 5 or 10 reviews and then had it answer the question based on the summary
 
-# TODO what if we had two search options: normal and deep? deep gives more reviews to work with
-
 # TODO slider on the frontend that specifies number of reviews to look at?
 
 @memoize
@@ -84,8 +82,9 @@ def get_place_info_api(place_id: str) -> Tuple:
     data = response.json()["result"]
     # print(data)
     reviews_str_list = []
-    for review in data["reviews"]:
-        reviews_str_list.append(review["text"])
+    if "reviews" in data:
+        for review in data["reviews"]:
+            reviews_str_list.append(review["text"])
     description, address, number, rating = "None", "None", "None", "None"
     if "editorial_summary" in data:
         description = data["editorial_summary"]["overview"]
@@ -158,11 +157,6 @@ example in:
 {
     "place_id": "ChIJpy7YpHF_44kRZ0CG8kUMwn8"
 }
-
-error: 
-{
-    "error": "..."
-}
 """
 @app.route('/get_place_info', methods=['POST'])
 def get_place_info():
@@ -208,9 +202,12 @@ def get_summary():
         name, reviews, _, _, _, _, _ = get_place_info_api(place_id)
     else:
         name, reviews, _, _, _, _, _ = get_reviews_api(place_id, cur_num_reviews)
-    # TODO also send reviews so you can view source reviews
-    prompt = generate_summary_prompt(name, reviews)
-    gpt_summary = get_gpt3_response(prompt, 250)
+    if len(reviews) == 0:
+        gpt_summary = "I'm sorry. This place has no reviews."
+    else:
+        # TODO also send reviews so you can view source reviews
+        prompt = generate_summary_prompt(name, reviews)
+        gpt_summary = get_gpt3_response(prompt, 250)
     response = {
         "summary": gpt_summary,
     }
@@ -220,16 +217,10 @@ def get_summary():
 example in:
 {
     "place_id": "ChIJpy7YpHF_44kRZ0CG8kUMwn8",
-    "question": "Are they nice?"
-}
-
-error: 
-{
-    "error": "..."
+    "question": "Are they nice?",
+    "max_reviews": 5
 }
 """
-
-
 @app.route('/ask_question', methods=['POST'])
 def ask_question():
     data = request.get_json()
@@ -237,13 +228,20 @@ def ask_question():
         return jsonify({"error": "place_id or question not in request!!!!"})
     place_id = data["place_id"]
     question = data["question"]
+    if "max_reviews" in data and type(data["max_reviews"]) is int:
+        cur_num_reviews = data["max_reviews"]
+    else:
+        cur_num_reviews = num_reviews
     # num_reviews = 5
-    if num_reviews <= 5:
+    if cur_num_reviews <= 5:
         name, reviews, _, _, _, _, _ = get_place_info_api(place_id)
     else:
-        name, reviews, _, _, _, _, _ = get_reviews_api(place_id, num_reviews)
-    prompt = generate_question_prompt(name, reviews, question)
-    gpt_answer = get_gpt3_response(prompt, 250)
+        name, reviews, _, _, _, _, _ = get_reviews_api(place_id, cur_num_reviews)
+    if len(reviews) == 0:
+        gpt_answer = "I'm sorry. This place has no reviews."
+    else:
+        prompt = generate_question_prompt(name, reviews, question)
+        gpt_answer = get_gpt3_response(prompt, 250)
     response = {
         "answer": gpt_answer
     }
@@ -254,7 +252,7 @@ if __name__ == '__main__':
     app.run()
     # print(get_place_info_api("ChIJKY6zkCRF5IkRyyCi9_xpfgs"))
     # print(get_gpt3_response("Hi, how's it going?", 250))
-    # print(get_reviews_api("ChIJpy7YpHF_44kRZ0CG8kUMwn8"))
+    # print(get_reviews_api("ChIJQdr1UryyQYgRaUnFwsH2AOs"))
     # data = get_reviews_api("ChIJpy7YpHF_44kRZ0CG8kUMwn8", 1)
     # prompt = generate_summary_prompt(data["name"], data["reviews"])
     # print(prompt)
