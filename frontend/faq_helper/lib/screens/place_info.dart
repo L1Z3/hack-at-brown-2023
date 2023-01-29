@@ -5,6 +5,7 @@ import 'package:faq_helper/values/colors.dart';
 import 'package:faq_helper/values/fonts.dart';
 import 'package:faq_helper/values/phrases.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PlaceInfo extends StatefulWidget {
@@ -72,7 +73,7 @@ class _PlaceInfoState extends State<PlaceInfo> {
                   ? Center(child: CircularProgressIndicator())
                   : success
                       ? Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text(
                               _placeData.name,
@@ -81,9 +82,55 @@ class _PlaceInfoState extends State<PlaceInfo> {
                             ClipRRect(
                               child: Image.network(
                                 'https://picsum.photos/250?image=9',
-                                width: double.infinity,
+                                // width: double.infinity,
                               ),
                               borderRadius: BorderRadius.circular(20),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.star_border,
+                                  color: Colors.white,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                  "${_placeData.rating}/5.0",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 20),
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Container(
+                                    width: 100,
+                                    child: Stack(
+                                      children: [
+                                        LinearProgressIndicator(
+                                          value: _placeData.rating / 5.0,
+                                          minHeight: 30,
+                                          semanticsLabel:
+                                              'Linear progress indicator',
+                                          color: Colors.green,
+                                        ),
+                                        Shimmer.fromColors(
+                                            child: Container(
+                                              height: 30,
+                                              width: 100,
+                                              color: Colors.black,
+                                            ),
+                                            baseColor: Colors.transparent,
+                                            highlightColor:
+                                                Colors.white.withAlpha(50)),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                             PhoneNumberButton(number: _placeData.phone),
                             Text(
@@ -93,13 +140,10 @@ class _PlaceInfoState extends State<PlaceInfo> {
                             Padding(
                               padding: const EdgeInsets.all(14.0),
                               child: _placeData.hasDesc()
-                                  ? Text(_placeData.description)
-                                  : const Text(
-                                      locationNoDesc,
-                                      style: TextStyle(
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
+                                  ? Text(_placeData.description, style: placeDescStyle,)
+                                  : Text(locationNoDesc,
+                                      style: placeDescStyle.copyWith(
+                                          fontStyle: FontStyle.italic)),
                             ),
                             OutlinedButton(
                               style: OutlinedButton.styleFrom(
@@ -157,8 +201,32 @@ class PhoneNumberButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (number != "None") {
-      return TextButton(onPressed: _launchCaller, child: Text(number));
+      return TextButton(
+          onPressed: _launchCaller,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.phone),
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                number,
+                style: phoneNumberStyle,
+              ),
+            ],
+          ));
     }
-    return TextButton(onPressed: () {}, child: const Text(locationNoPhone));
+    return TextButton(
+        onPressed: () {},
+        child: Row(
+          children: [
+            Icon(Icons.phone),
+            const Text(
+              locationNoPhone,
+              style: phoneNumberStyle,
+            ),
+          ],
+        ));
   }
 }
