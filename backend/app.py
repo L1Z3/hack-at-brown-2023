@@ -126,7 +126,7 @@ def generate_summary_prompt(place_name: str, reviews: List[str]) -> str:
     prompt = f"Below are a variety of reviews for a place called \"{place_name}\". \n\n"
     num_used = 0
     for review in reviews:
-        new_prompt = prompt + "Here is a review:\n" + review
+        new_prompt = prompt + "Here is a review:\n" + str(review)
         if get_num_tokens(new_prompt) > input_max_tokens:
             break
         prompt = new_prompt + "\n\n"
@@ -150,7 +150,7 @@ def generate_question_prompt(place_name: str, reviews: List[str], question: str,
     prompt += "\n\n"
     num_used = 0
     for review in reviews:
-        new_prompt = prompt + "Here is a review:\n" + review
+        new_prompt = prompt + "Here is a review:\n" + str(review)
         if get_num_tokens(new_prompt) > input_max_tokens:
             break
         prompt = new_prompt + "\n\n"
