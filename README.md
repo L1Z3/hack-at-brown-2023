@@ -11,7 +11,7 @@ Inspired by Calcifer from Howl's Moving Castle who is the de facto "travel direc
 We used natural language processing in combination with a number of different APIs and webscraping tools.
 
 ## Running
-Run `pip install -r requirements.txt` in the backend folder to install the requirements. In the backend folder, four files are needed:
+Run `pip install -r requirements.txt` in the backend folder to install the requirements. In the backend folder, five files are needed:
 * `password.txt`, containing a password for authentication.
 * `openai-key.txt`, containing your GPT-3 API key
 * `outscaper-api-key.txt`, containing your API key for Outscraper
