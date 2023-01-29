@@ -77,7 +77,7 @@ def get_reviews_api(place: str, number_of_reviews: int = 5) -> Tuple:
 
 @memoize
 def get_place_info_api(place_id: str) -> Tuple:
-    url = f'https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&fields=name,formatted_address,formatted_phone_number,formatted_phone_number,rating,user_ratings_total,review,editorial_summary&key={places_api_key}'
+    url = f'https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&fields=name,formatted_address,formatted_phone_number,formatted_phone_number,rating,user_ratings_total,review,editorial_summary,photos&key={places_api_key}'
     # Send the GET request to the Places API
     response = requests.get(url)
     # Get the JSON data from the response
@@ -87,7 +87,7 @@ def get_place_info_api(place_id: str) -> Tuple:
     if "reviews" in data:
         for review in data["reviews"]:
             reviews_str_list.append(review["text"])
-    description, address, number, rating = "None", "None", "None", "None"
+    description, address, number, rating, photo_id = "None", "None", "None", "None", "None"
     if "editorial_summary" in data:
         description = data["editorial_summary"]["overview"]
     if "formatted_address" in data:
@@ -96,8 +96,12 @@ def get_place_info_api(place_id: str) -> Tuple:
         number = data["formatted_phone_number"]
     if "rating" in data:
         rating = data["rating"]
+    if "photos" in data:
+        if len(data["photos"]) > 0:
+            photo_id = data["photos"][0]["photo_reference"]
+    
 
-    return data["name"], reviews_str_list, address, number, description, rating, "None"
+    return data["name"], reviews_str_list, address, number, description, rating, photo_id
 
 
 def get_gpt3_response(input_text: str, max_tokens: int) -> str:
@@ -259,8 +263,8 @@ def ask_question():
     return jsonify(response)
 
 
-if __name__ == '__main__':
-    app.run()
+# if __name__ == '__main__':
+#     app.run()
     # print(get_place_info_api("ChIJKY6zkCRF5IkRyyCi9_xpfgs"))
     # print(get_gpt3_response("Hi, how's it going?", 250))
     # print(get_reviews_api("ChIJQdr1UryyQYgRaUnFwsH2AOs"))
