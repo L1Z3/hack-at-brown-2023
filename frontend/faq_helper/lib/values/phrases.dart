@@ -7,3 +7,7 @@ const searchHint = 'Where are you going?';
 const locationNoDesc = "No description available";
 const locationFailedLoad = "Failed to load";
 const locationNoPhone = "No phone number available";
+
+//FAQ
+const askHint = "What would you like to know?";
+const askSendTooltip = "Ask me!";

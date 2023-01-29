@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:faq_helper/models/autocompleteRes.dart';
-import 'package:faq_helper/secret.dart';
+import 'package:faq_helper/screens/place_info.dart';
 import 'package:faq_helper/utilities/network.dart';
 import 'package:faq_helper/values/colors.dart';
 import 'package:faq_helper/values/fonts.dart';
@@ -27,8 +27,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'FAiQ'),
+      // home: const MyHomePage(title: 'FAiQ'),
       // home: PlaceInfo(placeId: "ChIJj-S0i8Zr5IkR5izIcdDkzyQ"),
+      home: ChatPage(
+        placeId: 'ChIJL-lNehNF5IkR1nzntAKsTt8',
+        title: 'Pizza Queen',
+      ),
     );
   }
 }
@@ -245,7 +249,6 @@ class _MyHomePageState extends State<MyHomePage> {
 class AutoCompleteResultCard extends StatefulWidget {
   final PlacesAutocompletion item;
 
-  //
   const AutoCompleteResultCard({super.key, required this.item});
 
   @override
@@ -318,115 +321,88 @@ class _AutoCompleteResultCardState extends State<AutoCompleteResultCard> {
   }
 }
 
-class PlaceInfo extends StatefulWidget {
+class ChatPage extends StatefulWidget {
+
+  final String title;
   final String placeId;
 
-  PlaceInfo({super.key, required this.placeId});
+  const ChatPage({super.key, required this.title, required this.placeId});
 
   @override
-  _PlaceInfoState createState() => _PlaceInfoState();
+  _ChatPageState createState() => _ChatPageState();
 }
 
-class _PlaceInfoState extends State<PlaceInfo> {
-  bool loading = true;
-  bool success = false;
-  late Location _placeData;
+class _ChatPageState extends State<ChatPage> {
+  final _askController = TextEditingController();
 
-  void loadData() async {
-    try {
-      _placeData = await NetworkUtility.getLocationInfo(widget.placeId);
-      print(_placeData.name);
-      loading = false;
-      success = true;
-    } catch (e) {
-      loading = false;
-      success = false;
-    }
-    setState(() {});
+  void askQuestion() async {
+    print(
+        await NetworkUtility.getAnswer(widget.placeId, 10, _askController.text)
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (loading) {
-      print(widget.placeId);
-      loadData();
-    }
     return Scaffold(
       body: Center(
         child: Container(
           height: double.infinity,
           width: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [mainGradientStart, mainGradientEnd],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
           child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(14.0),
-              child: loading
-                  ? Center(child: CircularProgressIndicator())
-                  : success
-                      ? Column(
-                          children: <Widget>[
-                            Text(
-                              _placeData.name,
-                              style: placeTitleStyle,
-                            ),
-                            PhoneNumberButton(number: _placeData.phone),
-                            Text(
-                              _placeData.address,
-                              style: placeAddressStyle,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(14.0),
-                              child: _placeData.hasDesc()
-                                  ? Text(_placeData.description)
-                                  : const Text(
-                                      locationNoDesc,
-                                      style: TextStyle(
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                            ),
-                            MaterialButton(
-                              onPressed: () {},
-                              child: Text("Ask me questions!"),
-                            )
-                          ],
-                        )
-                      : const Center(child: Text(locationFailedLoad)),
+            bottom: false,
+            child: Column(
+              verticalDirection: VerticalDirection.up,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                  decoration: const BoxDecoration(
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(10)),
+                    gradient: LinearGradient(
+                      colors: [mainGradientStart, mainGradientEnd],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  height: 120,
+                  width: double.infinity,
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14.0),
+                      child: TextField(
+                        onTap: () {},
+                        controller: _askController,
+                        autofocus: false,
+                        showCursor: true,
+                        onSubmitted: (query) {
+                          askQuestion();
+                          _askController.clear();
+                        },
+                        onChanged: (str) {},
+                        // style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: askHint,
+                          filled: true,
+                          fillColor: searchBarColor,
+                          border: InputBorder.none,
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              askQuestion();
+                              _askController.clear();
+                            },
+                            icon: const Icon(Icons.send),
+                            tooltip: askSendTooltip,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
         ),
       ),
     );
-  }
-}
-
-class PhoneNumberButton extends StatelessWidget {
-  final String number;
-
-  const PhoneNumberButton({super.key, required this.number});
-
-  String stripPhone(String num) {
-    return num.replaceAll(RegExp(r'(\(|\)|\-| )'), '');
-  }
-
-  void _launchCaller() async {
-    Uri url = Uri.parse('tel:${stripPhone(number)}');
-    if (!await launchUrl(url)) {
-      throw 'Could not launch $url';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (number != "None") {
-      return TextButton(onPressed: _launchCaller, child: Text(number));
-    }
-    return TextButton(onPressed: () {}, child: const Text(locationNoPhone));
   }
 }
