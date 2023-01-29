@@ -5,8 +5,10 @@ import 'package:faq_helper/screens/place_info.dart';
 import 'package:faq_helper/utilities/network.dart';
 import 'package:faq_helper/values/colors.dart';
 import 'package:faq_helper/values/fonts.dart';
+import 'package:faq_helper/values/margins.dart';
 import 'package:faq_helper/values/phrases.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'models/location.dart';
@@ -322,7 +324,6 @@ class _AutoCompleteResultCardState extends State<AutoCompleteResultCard> {
 }
 
 class ChatPage extends StatefulWidget {
-
   final String title;
   final String placeId;
 
@@ -335,17 +336,57 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final _askController = TextEditingController();
 
+  List<String> queries = [];
+  List<String> responses = [];
+  bool thinking = false;
+
+  List<Widget> chatBubbleList = [];
+
+  void buildChatBubbles() {
+    chatBubbleList = [
+      WordBubble(content: initialMessage(widget.title), fromBot: true)
+    ];
+    for (int i = 0; i < queries.length; i++) {
+      chatBubbleList.insert(0, WordBubble(content: queries[i], fromBot: false));
+      chatBubbleList.insert(
+          0, WordBubble(content: responses[i], fromBot: true));
+    }
+  }
+
   void askQuestion() async {
-    print(
-        await NetworkUtility.getAnswer(widget.placeId, 10, _askController.text)
-    );
+    setState(() {
+      thinking = true;
+    });
+    String question = _askController.text;
+    _askController.clear();
+    queries.add(question);
+    chatBubbleList.insert(0, WordBubble(content: queries.last, fromBot: false));
+    try {
+      String answer =
+          await NetworkUtility.getAnswer(widget.placeId, 10, question);
+      responses.add(answer);
+    } catch (e) {
+      responses.add(askUnableToRetrieve);
+    }
+    chatBubbleList.insert(
+        0, WordBubble(content: responses.last, fromBot: true));
+    thinking = false;
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    buildChatBubbles();
     return Scaffold(
       body: Center(
         child: Container(
+          color: Color(0xFFffd9e0),
           height: double.infinity,
           width: double.infinity,
           child: SafeArea(
@@ -376,7 +417,6 @@ class _ChatPageState extends State<ChatPage> {
                         showCursor: true,
                         onSubmitted: (query) {
                           askQuestion();
-                          _askController.clear();
                         },
                         onChanged: (str) {},
                         // style: TextStyle(color: Colors.white),
@@ -388,7 +428,6 @@ class _ChatPageState extends State<ChatPage> {
                           suffixIcon: IconButton(
                             onPressed: () {
                               askQuestion();
-                              _askController.clear();
                             },
                             icon: const Icon(Icons.send),
                             tooltip: askSendTooltip,
@@ -397,8 +436,53 @@ class _ChatPageState extends State<ChatPage> {
                       ),
                     ),
                   ),
-                )
+                ),
+                Expanded(
+                  child: ListView(reverse: true, children: chatBubbleList),
+                ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class WordBubble extends StatelessWidget {
+  final String content;
+  final bool fromBot;
+
+  const WordBubble({super.key, required this.content, required this.fromBot});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      child: Padding(
+        padding: fromBot
+            ? const EdgeInsets.only(
+                right: messagesOppositeSpace, left: messagesOwnSideSpace)
+            : const EdgeInsets.only(
+                right: messagesOwnSideSpace, left: messagesOppositeSpace),
+        child: Card(
+          elevation: 0.0,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(messagesRoundRadius)),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(messagesRoundRadius),
+              gradient: fromBot ? aiMessageGradient : userMessageGradient,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(messageInnerPadding),
+              child: Text(
+                content,
+                overflow: TextOverflow.fade,
+                style: TextStyle(
+                    color: fromBot ? Colors.white : offBlack,
+                    fontSize: 18.0),
+              ),
             ),
           ),
         ),
