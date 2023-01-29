@@ -4,7 +4,12 @@ import 'package:faq_helper/models/autocompleteRes.dart';
 import 'package:faq_helper/secret.dart';
 import 'package:faq_helper/utilities/network.dart';
 import 'package:faq_helper/values/colors.dart';
+import 'package:faq_helper/values/fonts.dart';
+import 'package:faq_helper/values/phrases.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'models/location.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,19 +23,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'FAiQ',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'FAiQ'),
+      // home: PlaceInfo(placeId: "ChIJj-S0i8Zr5IkR5izIcdDkzyQ"),
     );
   }
 }
@@ -53,10 +51,10 @@ class _MyHomePageState extends State<MyHomePage> {
   void autocompletePlace(String query) async {
     List<PlacesAutocompletion> suggestions =
         await NetworkUtility.getAutocompletions(query);
-    suggestions.forEach((element) {
-      print(element.title);
-      print(element.address);
-    });
+    // suggestions.forEach((element) {
+    //   print(element.title);
+    //   print(element.address);
+    // });
     setState(() {
       _autocompletions = suggestions;
     });
@@ -143,8 +141,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             autocompletePlace(str);
                           },
                           onChanged: (str) {
-                            if (_debounce?.isActive ?? false)
+                            if (_debounce?.isActive ?? false) {
                               _debounce!.cancel();
+                            }
                             _debounce =
                                 Timer(const Duration(milliseconds: 500), () {
                               if (str.isNotEmpty) {
@@ -154,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           },
                           // style: TextStyle(color: Colors.white),
                           decoration: const InputDecoration(
-                            hintText: 'Where are you going?',
+                            hintText: searchHint,
                             filled: true,
                             fillColor: searchBarColor,
                             border: InputBorder.none,
@@ -177,8 +176,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         height: 20,
                       ),
                       const Text(
-                        "Search for any establishment and ask questions based on "
-                        "previous reviews.",
+                        searchSub,
                         style: TextStyle(
                           color: Color.fromARGB(150, 255, 255, 255),
                         ),
@@ -277,6 +275,11 @@ class _AutoCompleteResultCardState extends State<AutoCompleteResultCard> {
           ),
           onPressed: () {
             print(widget.item.placeId);
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => PlaceInfo(placeId: widget.item.placeId),
+              ),
+            );
           },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -315,3 +318,115 @@ class _AutoCompleteResultCardState extends State<AutoCompleteResultCard> {
   }
 }
 
+class PlaceInfo extends StatefulWidget {
+  final String placeId;
+
+  PlaceInfo({super.key, required this.placeId});
+
+  @override
+  _PlaceInfoState createState() => _PlaceInfoState();
+}
+
+class _PlaceInfoState extends State<PlaceInfo> {
+  bool loading = true;
+  bool success = false;
+  late Location _placeData;
+
+  void loadData() async {
+    try {
+      _placeData = await NetworkUtility.getLocationInfo(widget.placeId);
+      print(_placeData.name);
+      loading = false;
+      success = true;
+    } catch (e) {
+      loading = false;
+      success = false;
+    }
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) {
+      print(widget.placeId);
+      loadData();
+    }
+    return Scaffold(
+      body: Center(
+        child: Container(
+          height: double.infinity,
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [mainGradientStart, mainGradientEnd],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(14.0),
+              child: loading
+                  ? Center(child: CircularProgressIndicator())
+                  : success
+                      ? Column(
+                          children: <Widget>[
+                            Text(
+                              _placeData.name,
+                              style: placeTitleStyle,
+                            ),
+                            PhoneNumberButton(number: _placeData.phone),
+                            Text(
+                              _placeData.address,
+                              style: placeAddressStyle,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(14.0),
+                              child: _placeData.hasDesc()
+                                  ? Text(_placeData.description)
+                                  : const Text(
+                                      locationNoDesc,
+                                      style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                            ),
+                            MaterialButton(
+                              onPressed: () {},
+                              child: Text("Ask me questions!"),
+                            )
+                          ],
+                        )
+                      : const Center(child: Text(locationFailedLoad)),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PhoneNumberButton extends StatelessWidget {
+  final String number;
+
+  const PhoneNumberButton({super.key, required this.number});
+
+  String stripPhone(String num) {
+    return num.replaceAll(RegExp(r'(\(|\)|\-| )'), '');
+  }
+
+  void _launchCaller() async {
+    Uri url = Uri.parse('tel:${stripPhone(number)}');
+    if (!await launchUrl(url)) {
+      throw 'Could not launch $url';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (number != "None") {
+      return TextButton(onPressed: _launchCaller, child: Text(number));
+    }
+    return TextButton(onPressed: () {}, child: const Text(locationNoPhone));
+  }
+}
