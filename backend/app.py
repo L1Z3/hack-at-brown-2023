@@ -228,7 +228,10 @@ def get_summary():
     if cur_num_reviews <= 5:
         name, reviews, _, _, _, _, _ = get_place_info_api(place_id)
     else:
-        name, reviews, _, _, _, _, _ = get_reviews_api(place_id, cur_num_reviews)
+        try:
+            name, reviews, _, _, _, _, _ = get_reviews_api(place_id, cur_num_reviews)
+        except ConnectionError:
+            name, reviews, _, _, _, _, _ = get_reviews_api(place_id, cur_num_reviews)
     if len(reviews) == 0:
         gpt_summary = "I'm sorry. This place has no reviews."
     else:
