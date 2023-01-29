@@ -25,3 +25,11 @@ const userMessageGradient = LinearGradient(
   begin: Alignment.topRight,
   end: Alignment.bottomLeft,
 );
+
+const messagesBGColorBot = Color(0xFFff8fc5);
+const messagesBGColorTop = Color(0xFFff7878);
+const messagesBGGradient = LinearGradient(
+  colors: [messagesBGColorTop, messagesBGColorBot],
+  begin: Alignment.topRight,
+  end: Alignment.bottomLeft,
+);

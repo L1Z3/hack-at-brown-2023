@@ -27,7 +27,8 @@ class MyApp extends StatelessWidget {
       title: 'FAiQ',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.pink,
+        // primaryColor: Colors.black
       ),
       home: const MyHomePage(title: 'FAiQ'),
       // home: PlaceInfo(placeId: "ChIJj-S0i8Zr5IkR5izIcdDkzyQ"),

@@ -29,11 +29,10 @@ class _ChatPageState extends State<ChatPage> {
     ];
     for (int i = 0; i < queries.length; i++) {
       chatBubbleList.insert(0, WordBubble(content: queries[i], fromBot: false));
-      if(responses.length > i) {
+      if (responses.length > i) {
         chatBubbleList.insert(
             0, WordBubble(content: responses[i], fromBot: true));
-      }
-      else {
+      } else {
         print("Responses isn't ready yet");
       }
     }
@@ -50,9 +49,10 @@ class _ChatPageState extends State<ChatPage> {
     setState(() {});
     try {
       String answer =
-      await NetworkUtility.getAnswer(widget.placeId, 10, question);
+          await NetworkUtility.getAnswer(widget.placeId, 10, question);
       responses.add(answer);
     } catch (e) {
+      print(e);
       responses.add(askUnableToRetrieve);
     }
     chatBubbleList.insert(
@@ -71,9 +71,23 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     buildChatBubbles();
     return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+        backgroundColor: messagesBGColorTop,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: Colors.white,
+            height: 1.0,
+          ),
+        ),
+      ),
       body: Center(
         child: Container(
-          color: Color(0xFFffd9e0),
+          // color: Color(0xFFffd9e0),
+          decoration: BoxDecoration(gradient: messagesBGGradient),
           height: double.infinity,
           width: double.infinity,
           child: SafeArea(
@@ -85,7 +99,7 @@ class _ChatPageState extends State<ChatPage> {
                 Container(
                   decoration: const BoxDecoration(
                     borderRadius:
-                    BorderRadius.vertical(top: Radius.circular(10)),
+                        BorderRadius.vertical(top: Radius.circular(10)),
                     gradient: LinearGradient(
                       colors: [mainGradientStart, mainGradientEnd],
                       begin: Alignment.topLeft,
@@ -150,13 +164,17 @@ class WordBubble extends StatelessWidget {
       child: Padding(
         padding: fromBot
             ? const EdgeInsets.only(
-            right: messagesOppositeSpace, left: messagesOwnSideSpace)
+                right: messagesOppositeSpace, left: messagesOwnSideSpace)
             : const EdgeInsets.only(
-            right: messagesOwnSideSpace, left: messagesOppositeSpace),
+                right: messagesOwnSideSpace, left: messagesOppositeSpace),
         child: Card(
           elevation: 0.0,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(messagesRoundRadius)),
+            borderRadius: BorderRadius.circular(messagesRoundRadius),
+            side: BorderSide(
+              color: Colors.white,
+            ),
+          ),
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(messagesRoundRadius),
@@ -168,13 +186,19 @@ class WordBubble extends StatelessWidget {
                 content,
                 overflow: TextOverflow.fade,
                 style: TextStyle(
-                    color: fromBot ? Colors.white : offBlack,
-                    fontSize: 18.0),
+                    color: fromBot ? Colors.white : offBlack, fontSize: 18.0),
               ),
             ),
           ),
         ),
       ),
     );
+  }
+}
+
+class ThinkingBubble extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }
