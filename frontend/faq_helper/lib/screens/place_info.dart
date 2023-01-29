@@ -21,6 +21,7 @@ class PlaceInfo extends StatefulWidget {
 class _PlaceInfoState extends State<PlaceInfo> {
   bool loading = true;
   bool success = false;
+  bool summaryLoaded = false;
   late Location _placeData;
   String aiSummary = "Calcifer is thinking of a summary...";
 
@@ -40,11 +41,17 @@ class _PlaceInfoState extends State<PlaceInfo> {
 
   void loadSummary() async {
     try {
-      aiSummary = await NetworkUtility.getSummary(widget.placeId, 20);
-      setState(() {});
+      print("Getting summary");
+      String res = await NetworkUtility.getSummary(widget.placeId, 20);
+      setState(() {
+        aiSummary = res;
+        summaryLoaded = true;
+      });
     } catch (e) {
-      aiSummary = "Calcifer could not summarize findings on this one.";
-      setState(() {});
+      setState(() {
+        aiSummary = "Calcifer could not summarize findings on this one.";
+        summaryLoaded = true;
+      });
     }
   }
 
@@ -54,6 +61,7 @@ class _PlaceInfoState extends State<PlaceInfo> {
       print(widget.placeId);
       loadData();
     }
+    print("Rebuilding Info");
     return Scaffold(
       appBar: AppBar(
         title: Text("Explore"),
@@ -181,19 +189,26 @@ class _PlaceInfoState extends State<PlaceInfo> {
                               Padding(
                                 padding: const EdgeInsets.all(14.0),
                                 child:
-                                AnimatedTextKit(
-                                  animatedTexts: [
-                                    TypewriterAnimatedText(
-                                      aiSummary,
-                                      textStyle: placeDescStyle,
-                                      cursor: "🔥",
-                                      textAlign: TextAlign.start
-                                      // rotateOut: false,
-                                    ),
-                                  ],
-                                  repeatForever: false,
-                                  isRepeatingAnimation: false,
-                                ),
+                                  Text(aiSummary, style: placeDescStyle,)
+                                // AnimatedTextKit(
+                                //   animatedTexts: [
+                                //     summaryLoaded ? TypewriterAnimatedText(
+                                //       aiSummary,
+                                //       textStyle: placeDescStyle,
+                                //       cursor: "🔥",
+                                //       textAlign: TextAlign.start
+                                //       // rotateOut: false,
+                                //     ) : TypewriterAnimatedText(
+                                //         aiSummary,
+                                //         textStyle: placeDescStyle,
+                                //         cursor: "🔥",
+                                //         textAlign: TextAlign.start
+                                //       // rotateOut: false,
+                                //     ),
+                                //   ],
+                                //   repeatForever: !summaryLoaded,
+                                //   isRepeatingAnimation: false,
+                                // ),
                               ),
                               SizedBox(
                                 height: 50,
