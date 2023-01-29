@@ -225,7 +225,7 @@ class WordBubble extends StatelessWidget {
                   TypewriterAnimatedText(
                     content,
                     textStyle: TextStyle(color: Colors.white, fontSize: 18.0),
-                    cursor: "_",
+                    cursor: "🔥",
                     // rotateOut: false,
                   ),
                 ],
