@@ -34,4 +34,9 @@ class Location {
   bool hasPhone() {
     return phone != "None";
   }
+
+  bool hasPhoto() {
+    print(photo);
+    return photo != "None";
+  }
 }

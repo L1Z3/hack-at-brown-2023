@@ -1,3 +1,4 @@
+import 'package:animate_gradient/animate_gradient.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:faq_helper/utilities/network.dart';
 import 'package:faq_helper/values/colors.dart';
@@ -71,18 +72,29 @@ class _ChatPageState extends State<ChatPage> {
     String question = _askController.text;
     _askController.clear();
     queries.add(question);
-    chatBubbleList.insert(0, WordBubble(content: question, fromBot: false, mostRecent: false,));
+    chatBubbleList.insert(
+        0,
+        WordBubble(
+          content: question,
+          fromBot: false,
+          mostRecent: false,
+        ));
     setState(() {});
     try {
       String answer =
-          await NetworkUtility.getAnswer(widget.placeId, 10, question);
+          await NetworkUtility.getAnswer(widget.placeId, 20, question);
       responses.add(answer);
     } catch (e) {
       print(e);
       responses.add(getErrorMessage());
     }
     chatBubbleList.insert(
-        0, WordBubble(content: responses.last, fromBot: true, mostRecent: false,));
+        0,
+        WordBubble(
+          content: responses.last,
+          fromBot: true,
+          mostRecent: false,
+        ));
     thinking = false;
     setState(() {});
   }
@@ -217,27 +229,48 @@ class WordBubble extends StatelessWidget {
                     spreadRadius: 2.0,
                   ),
                 ]),
-            child: Padding(
-              padding: const EdgeInsets.all(messageInnerPadding),
-              child: mostRecent ?
-              AnimatedTextKit(
-                animatedTexts: [
-                  TypewriterAnimatedText(
-                    content,
-                    textStyle: TextStyle(color: Colors.white, fontSize: 18.0),
-                    cursor: "🔥",
-                    // rotateOut: false,
-                  ),
-                ],
-                repeatForever: false,
-                isRepeatingAnimation: false,
-              ) : Text(
-                content,
-                overflow: TextOverflow.fade,
-                style: TextStyle(
-                    color: fromBot ? Colors.white : offBlack, fontSize: 18.0),
-              ),
-            ),
+            child: mostRecent
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(messagesRoundRadius),
+                    child: AnimateGradient(
+                      primaryColors: [
+                        aiMessageColorTop,
+                        mainGradientStart,
+                        mainGradientEnd1
+                      ],
+                      secondaryColors: [
+                        aiMessageColorBot,
+                        mainGradientEnd,
+                        mainGradientStart
+                      ],
+                      child: Padding(
+                        padding: const EdgeInsets.all(messageInnerPadding),
+                        child: AnimatedTextKit(
+                          animatedTexts: [
+                            TypewriterAnimatedText(
+                              content,
+                              textStyle: TextStyle(
+                                  color: Colors.white, fontSize: 18.0),
+                              cursor: "🔥",
+                              // rotateOut: false,
+                            ),
+                          ],
+                          repeatForever: false,
+                          isRepeatingAnimation: false,
+                        ),
+                      ),
+                    ),
+                  )
+                : Padding(
+                  padding: const EdgeInsets.all(messageInnerPadding),
+                  child: Text(
+                      content,
+                      overflow: TextOverflow.fade,
+                      style: TextStyle(
+                          color: fromBot ? Colors.white : offBlack,
+                          fontSize: 18.0),
+                    ),
+                ),
           ),
         ),
       ),
