@@ -6,8 +6,8 @@ from outscraper import ApiClient
 from flask import Flask, redirect, render_template, request, session, url_for, jsonify
 from transformers import GPT2TokenizerFast
 
-tokenizer = GPT2TokenizerFast.from_pretrained("gpt2") \
- \
+tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
+
 app = Flask(__name__)
 
 with open("secret.txt", "r") as f:
