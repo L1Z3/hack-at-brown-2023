@@ -25,13 +25,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'FAiQ',
+      title: 'Calcifer.ai',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.pink,
         // primaryColor: Colors.black
       ),
-      home: const MyHomePage(title: 'FAiQ'),
+      home: const MyHomePage(title: 'Calcifer.ai'),
       // home: PlaceInfo(placeId: "ChIJj-S0i8Zr5IkR5izIcdDkzyQ"),
       // home: ChatPage(
       //   placeId: 'ChIJL-lNehNF5IkR1nzntAKsTt8',
@@ -147,7 +147,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           curve: Curves.easeOutCirc,
                           duration: const Duration(milliseconds: 200),
                           child: const Text(
-                            "FAiQ.",
+                            "Calcifer.ai",
                             textAlign: TextAlign.start,
                           ),
                         ),

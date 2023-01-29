@@ -1,7 +1,8 @@
 // Search Page
 import 'dart:math';
 
-const searchSub = "Search for any establishment and ask questions based on "
+const searchSub = "Calcifer helps you search for any restaurant, attraction, or "
+    "establishment and answers all your questions based on "
     "previous reviews.";
 const searchHint = 'Where are you going?';
 
