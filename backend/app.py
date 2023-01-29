@@ -186,7 +186,11 @@ def get_place_info():
     # num_reviews = 5
     # if num_reviews <= 5:
     # name, reviews, address, phone, description, rating, _ = get_place_info_api(place_id)
-    name, reviews, address, phone, description, rating, photo = get_reviews_api(place_id, 1)
+    try:
+        name, reviews, address, phone, description, rating, photo = get_reviews_api(place_id, 1)
+    except ConnectionError:
+        time.sleep(0.5)
+        name, reviews, address, phone, description, rating, photo = get_reviews_api(place_id, 1)
     # else:
     #     name, reviews, address, phone, description, rating, photo = get_reviews_api(place_id, num_reviews)
     # TODO also send reviews so you can view source reviews
