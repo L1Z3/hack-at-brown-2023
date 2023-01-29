@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:faq_helper/models/autocompleteRes.dart';
 import 'package:faq_helper/secret.dart';
 import 'package:faq_helper/utilities/network.dart';
@@ -45,6 +47,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _searchPlaceTextController = TextEditingController();
   bool _isSearching = false;
+  List<PlacesAutocompletion> _autocompletions = [];
+  Timer? _debounce;
 
   void autocompletePlace(String query) async {
     List<PlacesAutocompletion> suggestions =
@@ -52,6 +56,9 @@ class _MyHomePageState extends State<MyHomePage> {
     suggestions.forEach((element) {
       print(element.title);
       print(element.address);
+    });
+    setState(() {
+      _autocompletions = suggestions;
     });
   }
 
@@ -92,7 +99,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: double.infinity,
                 duration: const Duration(milliseconds: 500),
                 child: AnimatedAlign(
-                  alignment: _isSearching ? Alignment.topCenter : Alignment.bottomCenter,
+                  alignment: _isSearching
+                      ? Alignment.topCenter
+                      : Alignment.bottomCenter,
                   duration: const Duration(seconds: 1),
                   curve: Curves.fastOutSlowIn,
                   child: Column(
@@ -133,6 +142,14 @@ class _MyHomePageState extends State<MyHomePage> {
                           onSubmitted: (str) {
                             autocompletePlace(str);
                           },
+                          onChanged: (str) {
+                            if(_debounce?.isActive ?? false) _debounce!.cancel();
+                            _debounce = Timer(const Duration(milliseconds: 500), () {
+                              if(str.isNotEmpty) {
+                                autocompletePlace(str);
+                              }
+                            });
+                          },
                           // style: TextStyle(color: Colors.white),
                           decoration: const InputDecoration(
                             hintText: 'Where are you going?',
@@ -164,14 +181,34 @@ class _MyHomePageState extends State<MyHomePage> {
                           color: Color.fromARGB(150, 255, 255, 255),
                         ),
                       ),
-                      AutoCompleteResultCard(
-                        item: PlacesAutocompletion(
-                          description: "asdf",
-                          placeId: "xxx",
-                          reference: "asdf",
-                          title: "McGolf",
-                          address: "Dedham, MA, USA"
-                        )
+                      Expanded(
+                        child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20.0),
+                            child:
+                                // ListView(
+                                //   children: [
+                                //     AutoCompleteResultCard(
+                                //       item: PlacesAutocompletion(
+                                //         description: "asdf",
+                                //         placeId: "xxx",
+                                //         reference: "asdf",
+                                //         title: "McGolf",
+                                //         address: "Dedham, MA, USA"
+                                //       )
+                                //     ),
+                                //   ],
+                                // ),
+                                ListView.builder(
+                              itemCount: _autocompletions.length,
+                              // prototypeItem: ListTile(
+                              //   title: Text(_autocompletions.first),
+                              // ),
+                              itemBuilder: (context, index) {
+                                return AutoCompleteResultCard(
+                                  item: _autocompletions[index],
+                                );
+                              },
+                            )),
                       )
                       // Container(
                       //   child: ListView(
@@ -207,6 +244,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class AutoCompleteResultCard extends StatefulWidget {
   final PlacesAutocompletion item;
+
   //
   const AutoCompleteResultCard({super.key, required this.item});
 
@@ -217,32 +255,50 @@ class AutoCompleteResultCard extends StatefulWidget {
 class _AutoCompleteResultCardState extends State<AutoCompleteResultCard> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 100,
-      width: double.infinity,
-      child: MaterialButton(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20)
-        ),
-        elevation: 0,
-        onPressed: () {},
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(widget.item.title, style: const TextStyle(fontSize: 20, overflow: TextOverflow.fade),),
-                Text(widget.item.address, style: const TextStyle(fontSize: 20, overflow: TextOverflow.fade, color: Colors.black45),)
-              ],
-            ),
-            const Icon(Icons.chevron_right_rounded)
-          ],
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SizedBox(
+        height: 100,
+        width: double.infinity,
+        child: MaterialButton(
+          color: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          elevation: 0,
+          onPressed: () {},
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.item.title,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        overflow: TextOverflow.fade,
+                      ),
+                      softWrap: false,
+                    ),
+                    Text(
+                      widget.item.address,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        overflow: TextOverflow.fade,
+                        color: Colors.black45,
+                      ),
+                      softWrap: false,
+                    )
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right_rounded)
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
