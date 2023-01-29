@@ -143,9 +143,11 @@ class _MyHomePageState extends State<MyHomePage> {
                             autocompletePlace(str);
                           },
                           onChanged: (str) {
-                            if(_debounce?.isActive ?? false) _debounce!.cancel();
-                            _debounce = Timer(const Duration(milliseconds: 500), () {
-                              if(str.isNotEmpty) {
+                            if (_debounce?.isActive ?? false)
+                              _debounce!.cancel();
+                            _debounce =
+                                Timer(const Duration(milliseconds: 500), () {
+                              if (str.isNotEmpty) {
                                 autocompletePlace(str);
                               }
                             });
@@ -260,12 +262,22 @@ class _AutoCompleteResultCardState extends State<AutoCompleteResultCard> {
       child: SizedBox(
         height: 100,
         width: double.infinity,
-        child: MaterialButton(
-          color: Colors.white,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          elevation: 0,
-          onPressed: () {},
+        child: OutlinedButton(
+          // color: Colors.white,
+          // shape:
+          //     RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          // elevation: 0,
+          style: OutlinedButton.styleFrom(
+            backgroundColor: searchBarColor,
+            foregroundColor: Colors.white,
+            side: const BorderSide(color: Colors.white, width: 0.5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18.0),
+            ),
+          ),
+          onPressed: () {
+            print(widget.item.placeId);
+          },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -277,7 +289,7 @@ class _AutoCompleteResultCardState extends State<AutoCompleteResultCard> {
                     Text(
                       widget.item.title,
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 22,
                         overflow: TextOverflow.fade,
                       ),
                       softWrap: false,
@@ -285,7 +297,7 @@ class _AutoCompleteResultCardState extends State<AutoCompleteResultCard> {
                     Text(
                       widget.item.address,
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 16,
                         overflow: TextOverflow.fade,
                         color: Colors.black45,
                       ),
@@ -302,3 +314,4 @@ class _AutoCompleteResultCardState extends State<AutoCompleteResultCard> {
     );
   }
 }
+
