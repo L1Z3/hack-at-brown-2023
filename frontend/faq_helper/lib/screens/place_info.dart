@@ -188,27 +188,23 @@ class _PlaceInfoState extends State<PlaceInfo> {
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(14.0),
-                                child:
-                                  Text(aiSummary, style: placeDescStyle,)
-                                // AnimatedTextKit(
-                                //   animatedTexts: [
-                                //     summaryLoaded ? TypewriterAnimatedText(
-                                //       aiSummary,
-                                //       textStyle: placeDescStyle,
-                                //       cursor: "🔥",
-                                //       textAlign: TextAlign.start
-                                //       // rotateOut: false,
-                                //     ) : TypewriterAnimatedText(
-                                //         aiSummary,
-                                //         textStyle: placeDescStyle,
-                                //         cursor: "🔥",
-                                //         textAlign: TextAlign.start
-                                //       // rotateOut: false,
-                                //     ),
-                                //   ],
-                                //   repeatForever: !summaryLoaded,
-                                //   isRepeatingAnimation: false,
-                                // ),
+                                child: !summaryLoaded
+                                    ? Text(
+                                        aiSummary,
+                                        style: placeDescStyle,
+                                      )
+                                    : AnimatedTextKit(
+                                        animatedTexts: [
+                                          TypewriterAnimatedText(aiSummary,
+                                              textStyle: placeDescStyle,
+                                              cursor: "🔥",
+                                              textAlign: TextAlign.start
+                                              // rotateOut: false,
+                                              ),
+                                        ],
+                                        repeatForever: !summaryLoaded,
+                                        isRepeatingAnimation: false,
+                                      ),
                               ),
                               SizedBox(
                                 height: 50,
