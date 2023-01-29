@@ -82,7 +82,7 @@ class _ChatPageState extends State<ChatPage> {
     setState(() {});
     try {
       String answer =
-          await NetworkUtility.getAnswer(widget.placeId, 10, question);
+          await NetworkUtility.getAnswer(widget.placeId, 20, question);
       responses.add(answer);
     } catch (e) {
       print(e);

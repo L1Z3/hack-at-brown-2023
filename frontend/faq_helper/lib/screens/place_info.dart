@@ -29,6 +29,7 @@ class _PlaceInfoState extends State<PlaceInfo> {
       loading = false;
       success = true;
     } catch (e) {
+      print(e);
       loading = false;
       success = false;
     }
@@ -80,7 +81,7 @@ class _PlaceInfoState extends State<PlaceInfo> {
                                 _placeData.name,
                                 style: placeTitleStyle,
                               ),
-                              Padding(
+                              _placeData.hasPhoto() ? Padding(
                                 padding: const EdgeInsets.all(14.0),
                                 child: ClipRRect(
                                   child: Image.network(
@@ -89,7 +90,7 @@ class _PlaceInfoState extends State<PlaceInfo> {
                                   ),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
-                              ),
+                              ) : const SizedBox.shrink(),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -143,6 +144,7 @@ class _PlaceInfoState extends State<PlaceInfo> {
                                   child: Text(
                                     _placeData.address,
                                     style: placeAddressStyle,
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ),
@@ -166,7 +168,7 @@ class _PlaceInfoState extends State<PlaceInfo> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: OutlinedButton(
+      floatingActionButton: success ? OutlinedButton(
         style: OutlinedButton.styleFrom(
           backgroundColor: mainGradientEnd,
           side:
@@ -192,7 +194,7 @@ class _PlaceInfoState extends State<PlaceInfo> {
                 color: Colors.white, fontSize: 20),
           ),
         ),
-      ),
+      ) : SizedBox.shrink(),
     );
   }
 }
