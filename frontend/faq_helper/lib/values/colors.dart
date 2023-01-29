@@ -11,7 +11,7 @@ const mainGradientStart1 = Color(0xFFF09819);
 const searchBarColor = Color.fromARGB(50, 255, 255, 255);
 
 // Chat
-const aiMessageColorBot = Color(0xFFf54c9b);
+const aiMessageColorBot = Color(0xFFf23f6f);
 const aiMessageColorTop = Color(0xFFf567aa);
 const aiMessageGradient = LinearGradient(
   colors: [aiMessageColorTop, aiMessageColorBot],

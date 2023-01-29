@@ -45,7 +45,7 @@ class NetworkUtility {
       body: convert.jsonEncode(
         <String, dynamic>{
           "place_id": placeId,
-          "max_reviews": 10,
+          "max_reviews": 20,
           "password": FLASK_PASSWORD
         },
       ),

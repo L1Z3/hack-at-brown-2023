@@ -1,4 +1,5 @@
 import 'package:faq_helper/models/location.dart';
+import 'package:faq_helper/screens/chat_page.dart';
 import 'package:faq_helper/utilities/network.dart';
 import 'package:faq_helper/values/colors.dart';
 import 'package:faq_helper/values/fonts.dart';
@@ -57,35 +58,44 @@ class _PlaceInfoState extends State<PlaceInfo> {
               child: loading
                   ? Center(child: CircularProgressIndicator())
                   : success
-                  ? Column(
-                children: <Widget>[
-                  Text(
-                    _placeData.name,
-                    style: placeTitleStyle,
-                  ),
-                  PhoneNumberButton(number: _placeData.phone),
-                  Text(
-                    _placeData.address,
-                    style: placeAddressStyle,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(14.0),
-                    child: _placeData.hasDesc()
-                        ? Text(_placeData.description)
-                        : const Text(
-                      locationNoDesc,
-                      style: TextStyle(
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ),
-                  MaterialButton(
-                    onPressed: () {},
-                    child: Text("Ask me questions!"),
-                  )
-                ],
-              )
-                  : const Center(child: Text(locationFailedLoad)),
+                      ? Column(
+                          children: <Widget>[
+                            Text(
+                              _placeData.name,
+                              style: placeTitleStyle,
+                            ),
+                            PhoneNumberButton(number: _placeData.phone),
+                            Text(
+                              _placeData.address,
+                              style: placeAddressStyle,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(14.0),
+                              child: _placeData.hasDesc()
+                                  ? Text(_placeData.description)
+                                  : const Text(
+                                      locationNoDesc,
+                                      style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                            ),
+                            MaterialButton(
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => ChatPage(
+                                      placeId: widget.placeId,
+                                      title: _placeData.name,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text("Ask me questions!"),
+                            )
+                          ],
+                        )
+                      : const Center(child: Text(locationFailedLoad)),
             ),
           ),
         ),

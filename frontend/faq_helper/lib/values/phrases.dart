@@ -14,5 +14,5 @@ const askSendTooltip = "Ask me!";
 const askUnableToRetrieve = "Hmm...I'm sorry, but I wasn't able to think straight.";
 String initialMessage(title) {
   return "Hello! Feel free to ask me anything about $title and I'll hopefully be"
-      "able to answer!";
+      " able to answer!";
 }
