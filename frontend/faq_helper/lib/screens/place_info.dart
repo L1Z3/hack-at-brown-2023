@@ -165,7 +165,7 @@ class _PlaceInfoState extends State<PlaceInfo> {
                               child: Padding(
                                 padding: const EdgeInsets.all(14.0),
                                 child: Text(
-                                  "Ask me questions!",
+                                  askQuestions,
                                   style: TextStyle(
                                       color: Colors.white, fontSize: 20),
                                 ),
@@ -220,8 +220,12 @@ class PhoneNumberButton extends StatelessWidget {
     return TextButton(
         onPressed: () {},
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.phone),
+            SizedBox(
+              width: 10,
+            ),
             const Text(
               locationNoPhone,
               style: phoneNumberStyle,

@@ -4,12 +4,13 @@ import 'dart:math';
 const searchSub = "Calcifer helps you search for any restaurant, attraction, or "
     "establishment and answers all your questions based on "
     "previous reviews.";
-const searchHint = 'Where are you going?';
+const searchHint = 'Where are we going?';
 
 // Location Info Page
 const locationNoDesc = "No description available";
 const locationFailedLoad = "Failed to load";
 const locationNoPhone = "No phone number available";
+const askQuestions = "Ask me questions!";
 
 //FAQ
 const askHint = "What would you like to know?";
