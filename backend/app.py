@@ -1,4 +1,6 @@
 import os
+import time
+
 import requests
 import pickle
 from typing import List, Dict, Tuple, Optional
@@ -164,7 +166,7 @@ def get_num_tokens(prompt: str) -> int:
     return len(tokenizer(prompt)['input_ids'])
 
 
-num_reviews = 10
+num_reviews = 15
 
 """
 example in:
@@ -260,7 +262,11 @@ def ask_question():
     if cur_num_reviews <= 5:
         name, reviews, address, number, description, _, _ = get_place_info_api(place_id)
     else:
-        name, reviews, address, number, description, _, _ = get_reviews_api(place_id, cur_num_reviews)
+        try:
+            name, reviews, address, number, description, _, _ = get_reviews_api(place_id, cur_num_reviews)
+        except ConnectionError:
+            time.sleep(0.5)
+            name, reviews, address, number, description, _, _ = get_reviews_api(place_id, cur_num_reviews)
     if len(reviews) == 0:
         gpt_answer = "I'm sorry. This place has no reviews."
     else:
@@ -273,10 +279,10 @@ def ask_question():
 
 
 # if __name__ == '__main__':
-#     app.run()
+    # app.run()
     # print(get_place_info_api("ChIJKY6zkCRF5IkRyyCi9_xpfgs"))
     # print(get_gpt3_response("Hi, how's it going?", 250))
-    # print(get_reviews_api("ChIJQdr1UryyQYgRaUnFwsH2AOs", 1))
+    # print(get_reviews_api("ChIJTaQNIKlb5IkR7p4H1QAZvB8", 1))
     # data = get_reviews_api("ChIJpy7YpHF_44kRZ0CG8kUMwn8", 1)
     # prompt = generate_summary_prompt(data["name"], data["reviews"])
     # print(prompt)
