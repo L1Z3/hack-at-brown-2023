@@ -1,21 +1,21 @@
 import 'dart:convert';
 
 class PlacesAutocompletion {
-  String? description;
+  late String description;
 
   // List<MatchedSubstrings>? matchedSubstrings;
-  String? placeId;
-  String? reference;
-  String? title;
-  String? address;
+  late String placeId;
+  late String reference;
+  late String title;
+  late String address;
 
   PlacesAutocompletion(
-      {this.description,
+      {this.description = "",
       // this.matchedSubstrings,
-      this.placeId,
-      this.reference,
-      this.title,
-      this.address});
+      this.placeId = "",
+      this.reference = "",
+      this.title = "",
+      this.address = ""});
 
   PlacesAutocompletion.fromJson(Map<String, dynamic> json) {
     description = json['description'];
@@ -27,11 +27,11 @@ class PlacesAutocompletion {
     }
   }
 
-  static List<PlacesAutocompletion> listFromJson(
-      List<dynamic> jsonList) {
+  static List<PlacesAutocompletion> listFromJson(List<dynamic> jsonList) {
     List<PlacesAutocompletion> res = [];
     for (int i = 0; i < jsonList.length; i++) {
-      res.add(PlacesAutocompletion.fromJson(jsonList[i] as Map<String, dynamic>));
+      res.add(
+          PlacesAutocompletion.fromJson(jsonList[i] as Map<String, dynamic>));
     }
     return res;
   }

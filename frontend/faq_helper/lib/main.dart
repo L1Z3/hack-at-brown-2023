@@ -164,7 +164,15 @@ class _MyHomePageState extends State<MyHomePage> {
                           color: Color.fromARGB(150, 255, 255, 255),
                         ),
                       ),
-                      AutoCompleteResultCard()
+                      AutoCompleteResultCard(
+                        item: PlacesAutocompletion(
+                          description: "asdf",
+                          placeId: "xxx",
+                          reference: "asdf",
+                          title: "McGolf",
+                          address: "Dedham, MA, USA"
+                        )
+                      )
                       // Container(
                       //   child: ListView(
                       //     children: [
@@ -198,9 +206,9 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class AutoCompleteResultCard extends StatefulWidget {
-  // final PlacesAutocompletion item;
+  final PlacesAutocompletion item;
   //
-  // const AutoCompleteResultCard({super.key, required this.item});
+  const AutoCompleteResultCard({super.key, required this.item});
 
   @override
   _AutoCompleteResultCardState createState() => _AutoCompleteResultCardState();
@@ -223,11 +231,11 @@ class _AutoCompleteResultCardState extends State<AutoCompleteResultCard> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Title", style: TextStyle(fontSize: 20),),
-                Text("Address", style: TextStyle(fontSize: 20, color: Colors.black45),)
+                Text(widget.item.title, style: const TextStyle(fontSize: 20, overflow: TextOverflow.fade),),
+                Text(widget.item.address, style: const TextStyle(fontSize: 20, overflow: TextOverflow.fade, color: Colors.black45),)
               ],
             ),
             const Icon(Icons.chevron_right_rounded)
