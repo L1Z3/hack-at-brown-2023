@@ -41,10 +41,11 @@ class _PlaceInfoState extends State<PlaceInfo> {
   void loadSummary() async {
     try {
       aiSummary = await NetworkUtility.getSummary(widget.placeId, 20);
+      setState(() {});
     } catch (e) {
       aiSummary = "Calcifer could not summarize findings on this one.";
+      setState(() {});
     }
-    setState(() {});
   }
 
   @override
@@ -308,13 +309,11 @@ class AddressButton extends StatelessWidget {
     if (address != "None") {
       return TextButton(
           onPressed: _launchAddr,
-          child: Expanded(
-            child: Text(
-              address,
-              style: phoneNumberStyle,
-              overflow: TextOverflow.fade,
-              textAlign: TextAlign.center,
-            ),
+          child: Text(
+            address,
+            style: phoneNumberStyle,
+            overflow: TextOverflow.fade,
+            textAlign: TextAlign.center,
           ));
     }
     return TextButton(
