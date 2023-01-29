@@ -10,6 +10,7 @@ const searchHint = 'Where are we going?';
 const locationNoDesc = "No description available";
 const locationFailedLoad = "Failed to load";
 const locationNoPhone = "No phone number available";
+const locationNoAddress = "No address available";
 const askQuestions = "Ask me questions!";
 
 //FAQ
