@@ -79,7 +79,7 @@ class _ChatPageState extends State<ChatPage> {
       responses.add(answer);
     } catch (e) {
       print(e);
-      responses.add(askUnableToRetrieve);
+      responses.add(getErrorMessage());
     }
     chatBubbleList.insert(
         0, WordBubble(content: responses.last, fromBot: true, mostRecent: false,));

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:animate_gradient/animate_gradient.dart';
 import 'package:faq_helper/models/autocompleteRes.dart';
 import 'package:faq_helper/screens/place_info.dart';
 import 'package:faq_helper/utilities/network.dart';
@@ -86,154 +87,167 @@ class _MyHomePageState extends State<MyHomePage> {
       //   title: Text("widget.title"),
       // ),
       body: Center(
-        child: Container(
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [mainGradientStart, mainGradientEnd],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(30.0),
-              child: AnimatedContainer(
-                // color: _isSearching ? Colors.black : mainGradientEnd,
-                curve: Curves.easeInCirc,
-                height: double.infinity,
-                duration: const Duration(milliseconds: 500),
-                child: AnimatedAlign(
-                  alignment: _isSearching
-                      ? Alignment.topCenter
-                      : Alignment.bottomCenter,
-                  duration: const Duration(seconds: 1),
-                  curve: Curves.fastOutSlowIn,
-                  child: Column(
-                    // mainAxisAlignment: _isSearching
-                    //     ? MainAxisAlignment.start
-                    //     : MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      AnimatedContainer(
-                        curve: Curves.easeOutCirc,
-                        duration: const Duration(milliseconds: 200),
-                        height: _isSearching ? 0 : 200,
-                      ),
-                      AnimatedDefaultTextStyle(
-                        style: _isSearching
-                            ? const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 30,
-                              )
-                            : const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 60,
-                              ),
-                        curve: Curves.easeOutCirc,
-                        duration: const Duration(milliseconds: 200),
-                        child: const Text(
-                          "FAiQ.",
-                          textAlign: TextAlign.start,
+        child: AnimateGradient(
+          primaryColors: const [
+            mainGradientStart,
+            mainGradientEnd,
+            userMessageColorTop,
+          ],
+          secondaryColors: const [
+            mainGradientEnd,
+            mainGradientStart,
+            mainGradientEnd1,
+          ],
+          child: Container(
+            width: double.infinity,
+            // decoration: const BoxDecoration(
+            //   gradient: LinearGradient(
+            //     colors: [mainGradientStart, mainGradientEnd],
+            //     begin: Alignment.topLeft,
+            //     end: Alignment.bottomRight,
+            //   ),
+            // ),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(30.0),
+                child: AnimatedContainer(
+                  // color: _isSearching ? Colors.black : mainGradientEnd,
+                  curve: Curves.easeInCirc,
+                  height: double.infinity,
+                  duration: const Duration(milliseconds: 500),
+                  child: AnimatedAlign(
+                    alignment: _isSearching
+                        ? Alignment.topCenter
+                        : Alignment.bottomCenter,
+                    duration: const Duration(seconds: 1),
+                    curve: Curves.fastOutSlowIn,
+                    child: Column(
+                      // mainAxisAlignment: _isSearching
+                      //     ? MainAxisAlignment.start
+                      //     : MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        AnimatedContainer(
+                          curve: Curves.easeOutCirc,
+                          duration: const Duration(milliseconds: 200),
+                          height: _isSearching ? 0 : 200,
                         ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(50),
-                        child: TextField(
-                          onTap: _focusSearch,
-                          controller: _searchPlaceTextController,
-                          autofocus: false,
-                          showCursor: true,
-                          onSubmitted: (str) {
-                            autocompletePlace(str);
-                          },
-                          onChanged: (str) {
-                            if (_debounce?.isActive ?? false) {
-                              _debounce!.cancel();
-                            }
-                            _debounce =
-                                Timer(const Duration(milliseconds: 500), () {
-                              if (str.isNotEmpty) {
-                                autocompletePlace(str);
-                              }
-                            });
-                          },
-                          // style: TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(
-                            hintText: searchHint,
-                            filled: true,
-                            fillColor: searchBarColor,
-                            border: InputBorder.none,
-                            // focusedBorder: OutlineInputBorder(
-                            //   borderSide: const BorderSide(
-                            //     width: 0
-                            //   ),
-                            // ),
-                            // border: OutlineInputBorder(
-                            //   borderSide: const BorderSide(
-                            //     width: 0,
-                            //     color: Colors.transparent,
-                            //   ),
-                            //   borderRadius: BorderRadius.circular(50.0),
-                            // ),
+                        AnimatedDefaultTextStyle(
+                          style: _isSearching
+                              ? const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 30,
+                                )
+                              : const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 60,
+                                ),
+                          curve: Curves.easeOutCirc,
+                          duration: const Duration(milliseconds: 200),
+                          child: const Text(
+                            "FAiQ.",
+                            textAlign: TextAlign.start,
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      const Text(
-                        searchSub,
-                        style: TextStyle(
-                          color: Color.fromARGB(150, 255, 255, 255),
+                        const SizedBox(
+                          height: 20,
                         ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20.0),
-                            child:
-                                // ListView(
-                                //   children: [
-                                //     AutoCompleteResultCard(
-                                //       item: PlacesAutocompletion(
-                                //         description: "asdf",
-                                //         placeId: "xxx",
-                                //         reference: "asdf",
-                                //         title: "McGolf",
-                                //         address: "Dedham, MA, USA"
-                                //       )
-                                //     ),
-                                //   ],
-                                // ),
-                                ListView.builder(
-                              itemCount: _autocompletions.length,
-                              // prototypeItem: ListTile(
-                              //   title: Text(_autocompletions.first),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(50),
+                          child: TextField(
+                            onTap: _focusSearch,
+                            controller: _searchPlaceTextController,
+                            autofocus: false,
+                            showCursor: true,
+                            onSubmitted: (str) {
+                              autocompletePlace(str);
+                            },
+                            onChanged: (str) {
+                              if (_debounce?.isActive ?? false) {
+                                _debounce!.cancel();
+                              }
+                              _debounce =
+                                  Timer(const Duration(milliseconds: 500), () {
+                                if (str.isNotEmpty) {
+                                  autocompletePlace(str);
+                                }
+                              });
+                            },
+                            // style: TextStyle(color: Colors.white),
+                            decoration: const InputDecoration(
+                              hintText: searchHint,
+                              filled: true,
+                              fillColor: searchBarColor,
+                              border: InputBorder.none,
+                              // focusedBorder: OutlineInputBorder(
+                              //   borderSide: const BorderSide(
+                              //     width: 0
+                              //   ),
                               // ),
-                              itemBuilder: (context, index) {
-                                return AutoCompleteResultCard(
-                                  item: _autocompletions[index],
-                                );
-                              },
-                            )),
-                      )
-                      // Container(
-                      //   child: ListView(
-                      //     children: [
-                      //       // AutoCompleteResultCard()
-                      //     ],
-                      //   ),
-                      // ),
-                      // Text(
-                      //   '$_counter',
-                      //   style: Theme.of(context).textTheme.headlineMedium,
-                      // ),
-                    ],
+                              // border: OutlineInputBorder(
+                              //   borderSide: const BorderSide(
+                              //     width: 0,
+                              //     color: Colors.transparent,
+                              //   ),
+                              //   borderRadius: BorderRadius.circular(50.0),
+                              // ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        const Text(
+                          searchSub,
+                          style: TextStyle(
+                            color: Color.fromARGB(150, 255, 255, 255),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 20.0),
+                              child:
+                                  // ListView(
+                                  //   children: [
+                                  //     AutoCompleteResultCard(
+                                  //       item: PlacesAutocompletion(
+                                  //         description: "asdf",
+                                  //         placeId: "xxx",
+                                  //         reference: "asdf",
+                                  //         title: "McGolf",
+                                  //         address: "Dedham, MA, USA"
+                                  //       )
+                                  //     ),
+                                  //   ],
+                                  // ),
+                                  ListView.builder(
+                                itemCount: _autocompletions.length,
+                                // prototypeItem: ListTile(
+                                //   title: Text(_autocompletions.first),
+                                // ),
+                                itemBuilder: (context, index) {
+                                  return AutoCompleteResultCard(
+                                    item: _autocompletions[index],
+                                  );
+                                },
+                              )),
+                        )
+                        // Container(
+                        //   child: ListView(
+                        //     children: [
+                        //       // AutoCompleteResultCard()
+                        //     ],
+                        //   ),
+                        // ),
+                        // Text(
+                        //   '$_counter',
+                        //   style: Theme.of(context).textTheme.headlineMedium,
+                        // ),
+                      ],
+                    ),
                   ),
                 ),
               ),

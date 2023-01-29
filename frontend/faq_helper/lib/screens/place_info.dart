@@ -41,6 +41,19 @@ class _PlaceInfoState extends State<PlaceInfo> {
       loadData();
     }
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Explore"),
+        backgroundColor: mainGradientStart,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: Colors.white,
+            height: 1.0,
+          ),
+        ),
+      ),
       body: Center(
         child: Container(
           height: double.infinity,
@@ -59,10 +72,18 @@ class _PlaceInfoState extends State<PlaceInfo> {
                   ? Center(child: CircularProgressIndicator())
                   : success
                       ? Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text(
                               _placeData.name,
                               style: placeTitleStyle,
+                            ),
+                            ClipRRect(
+                              child: Image.network(
+                                'https://picsum.photos/250?image=9',
+                                width: double.infinity,
+                              ),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                             PhoneNumberButton(number: _placeData.phone),
                             Text(
@@ -80,7 +101,13 @@ class _PlaceInfoState extends State<PlaceInfo> {
                                       ),
                                     ),
                             ),
-                            MaterialButton(
+                            OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                side:
+                                    BorderSide(width: 1.0, color: Colors.white),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30.0)),
+                              ),
                               onPressed: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
@@ -91,7 +118,14 @@ class _PlaceInfoState extends State<PlaceInfo> {
                                   ),
                                 );
                               },
-                              child: Text("Ask me questions!"),
+                              child: Padding(
+                                padding: const EdgeInsets.all(14.0),
+                                child: Text(
+                                  "Ask me questions!",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 20),
+                                ),
+                              ),
                             )
                           ],
                         )
