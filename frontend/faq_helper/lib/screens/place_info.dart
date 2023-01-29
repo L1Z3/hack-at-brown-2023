@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:faq_helper/models/location.dart';
 import 'package:faq_helper/screens/chat_page.dart';
 import 'package:faq_helper/utilities/network.dart';
@@ -21,17 +22,27 @@ class _PlaceInfoState extends State<PlaceInfo> {
   bool loading = true;
   bool success = false;
   late Location _placeData;
+  String aiSummary = "Calcifer is thinking of a summary...";
 
   void loadData() async {
     try {
       _placeData = await NetworkUtility.getLocationInfo(widget.placeId);
-      print(_placeData.name);
       loading = false;
       success = true;
     } catch (e) {
       print(e);
       loading = false;
       success = false;
+    }
+    setState(() {});
+    loadSummary();
+  }
+
+  void loadSummary() async {
+    try {
+      aiSummary = await NetworkUtility.getSummary(widget.placeId, 20);
+    } catch (e) {
+      aiSummary = "Calcifer could not summarize findings on this one.";
     }
     setState(() {});
   }
@@ -72,41 +83,43 @@ class _PlaceInfoState extends State<PlaceInfo> {
                 ? Center(child: CircularProgressIndicator())
                 : success
                     ? SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(14.0),
-                        child: Column(
+                        child: Padding(
+                          padding: const EdgeInsets.all(14.0),
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
                               Text(
                                 _placeData.name,
                                 style: placeTitleStyle,
                               ),
-                              _placeData.hasPhoto() ? Padding(
-                                padding: const EdgeInsets.all(14.0),
-                                child: ClipRRect(
-                                  child: Image.network(
-                                    _placeData.photo,
-                                    // width: double.infinity,
-                                  ),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ) : const SizedBox.shrink(),
+                              _placeData.hasPhoto()
+                                  ? Padding(
+                                      padding: const EdgeInsets.all(14.0),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: Image.network(
+                                          _placeData.photo,
+                                          // width: double.infinity,
+                                        ),
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.star_border,
                                     color: Colors.white,
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 10,
                                   ),
                                   Text(
                                     "${_placeData.rating}/5.0",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors.white, fontSize: 20),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 10,
                                   ),
                                   ClipRRect(
@@ -123,14 +136,15 @@ class _PlaceInfoState extends State<PlaceInfo> {
                                             color: Colors.green,
                                           ),
                                           Shimmer.fromColors(
-                                              child: Container(
-                                                height: 30,
-                                                width: 100,
-                                                color: Colors.black,
-                                              ),
-                                              baseColor: Colors.transparent,
-                                              highlightColor:
-                                                  Colors.white.withAlpha(50)),
+                                            baseColor: Colors.transparent,
+                                            highlightColor:
+                                                Colors.white.withAlpha(50),
+                                            child: Container(
+                                              height: 30,
+                                              width: 100,
+                                              color: Colors.black,
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -142,50 +156,83 @@ class _PlaceInfoState extends State<PlaceInfo> {
                               Padding(
                                 padding: const EdgeInsets.all(14.0),
                                 child: _placeData.hasDesc()
-                                    ? Text(_placeData.description, style: placeDescStyle,)
-                                    : Text(locationNoDesc,
+                                    ? Text(
+                                        _placeData.description,
+                                        style: placeDescStyle,
+                                      )
+                                    : Text(
+                                        locationNoDesc,
                                         style: placeDescStyle.copyWith(
-                                            fontStyle: FontStyle.italic),),
+                                            fontStyle: FontStyle.italic),
+                                      ),
+                              ),
+                              const Align(
+                                alignment: Alignment.centerLeft,
+                                child: Padding(
+                                  padding: EdgeInsets.all(14.0),
+                                  child: Text(
+                                    calciferSays,
+                                    style: placeDescStyle,
+                                    textAlign: TextAlign.start,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(14.0),
+                                child:
+                                AnimatedTextKit(
+                                  animatedTexts: [
+                                    TypewriterAnimatedText(
+                                      aiSummary,
+                                      textStyle: placeDescStyle,
+                                      cursor: "🔥",
+                                      textAlign: TextAlign.start
+                                      // rotateOut: false,
+                                    ),
+                                  ],
+                                  repeatForever: false,
+                                  isRepeatingAnimation: false,
+                                ),
                               ),
                               SizedBox(
                                 height: 50,
                               ),
                             ],
                           ),
-                      ),
-                    )
+                        ),
+                      )
                     : const Center(child: Text(locationFailedLoad)),
           ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: success ? OutlinedButton(
-        style: OutlinedButton.styleFrom(
-          backgroundColor: mainGradientEnd,
-          side:
-          BorderSide(width: 1.0, color: Colors.white),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30.0)),
-        ),
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => ChatPage(
-                placeId: widget.placeId,
-                title: _placeData.name,
+      floatingActionButton: success
+          ? OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                backgroundColor: mainGradientEnd,
+                side: BorderSide(width: 1.0, color: Colors.white),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.0)),
               ),
-            ),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(14.0),
-          child: Text(
-            askQuestions,
-            style: TextStyle(
-                color: Colors.white, fontSize: 20),
-          ),
-        ),
-      ) : SizedBox.shrink(),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ChatPage(
+                      placeId: widget.placeId,
+                      title: _placeData.name,
+                    ),
+                  ),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(14.0),
+                child: Text(
+                  askQuestions,
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+              ),
+            )
+          : SizedBox.shrink(),
     );
   }
 }
@@ -249,7 +296,8 @@ class AddressButton extends StatelessWidget {
   const AddressButton({super.key, required this.address});
 
   void _launchAddr() async {
-    Uri url = Uri.parse('https://www.google.com/maps/search/?api=1&query=$address');
+    Uri url =
+        Uri.parse('https://www.google.com/maps/search/?api=1&query=$address');
     if (!await launchUrl(url)) {
       throw 'Could not launch $url';
     }
@@ -273,12 +321,12 @@ class AddressButton extends StatelessWidget {
         onPressed: () {},
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: const [
             Icon(Icons.map_outlined),
             SizedBox(
               width: 10,
             ),
-            const Text(
+            Text(
               locationNoAddress,
               style: phoneNumberStyle,
             ),
