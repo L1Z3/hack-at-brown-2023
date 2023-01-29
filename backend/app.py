@@ -23,6 +23,8 @@ with open("places-key.txt") as f:
 with open("outscraper-api-key.txt") as f:
     outscraper_api_key = f.read()
 
+with open("password.txt") as f:
+    password = f.read()
 
 
 # memo dict outside of memoizer! this is bad! i dont care!
@@ -155,12 +157,15 @@ num_reviews = 10
 """
 example in:
 {
-    "place_id": "ChIJpy7YpHF_44kRZ0CG8kUMwn8"
+    "place_id": "ChIJpy7YpHF_44kRZ0CG8kUMwn8",
+    "password": "..."
 }
 """
 @app.route('/get_place_info', methods=['POST'])
 def get_place_info():
     data = request.get_json()
+    if "password" not in data or data["password"] != password:
+        return jsonify({"error": "wrong password!!!"})
     if "place_id" not in data:
         return jsonify({"error": "place_id not in request!!!!"})
     place_id = data["place_id"]
@@ -184,12 +189,15 @@ def get_place_info():
 example in:
 {
     "place_id": "ChIJpy7YpHF_44kRZ0CG8kUMwn8",
-    "max_reviews": 5
+    "max_reviews": 5,
+    "password": "..."
 }
 """
 @app.route('/get_summary', methods=['POST'])
 def get_summary():
     data = request.get_json()
+    if "password" not in data or data["password"] != password:
+        return jsonify({"error": "wrong password!!!"})
     if "place_id" not in data:
         return jsonify({"error": "place_id not in request!!!!"})
     place_id = data["place_id"]
@@ -218,12 +226,15 @@ example in:
 {
     "place_id": "ChIJpy7YpHF_44kRZ0CG8kUMwn8",
     "question": "Are they nice?",
-    "max_reviews": 5
+    "max_reviews": 5,
+    "password": "..."
 }
 """
 @app.route('/ask_question', methods=['POST'])
 def ask_question():
     data = request.get_json()
+    if "password" not in data or data["password"] != password:
+        return jsonify({"error": "wrong password!!!"})
     if "place_id" not in data or "question" not in data:
         return jsonify({"error": "place_id or question not in request!!!!"})
     place_id = data["place_id"]
