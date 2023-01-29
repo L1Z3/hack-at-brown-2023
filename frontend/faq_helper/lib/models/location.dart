@@ -16,9 +16,17 @@ class Location {
 
   Location.fromJson(Map<String, dynamic> json) {
     address = json['address'];
-    description = json['description'];
+    if(json['description'] != null) {
+      description = json['description'];
+    } else {
+      description = 'None';
+    }
     name = json['name'];
-    phone = json['phone'];
+    if(json['phone'] != null) {
+      phone = json['phone'];
+    } else {
+      phone = "None";
+    }
     photo = json['photo'];
     try {
       rating = json['rating'];

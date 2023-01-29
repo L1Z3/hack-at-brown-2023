@@ -12,6 +12,7 @@ const locationFailedLoad = "Failed to load";
 const locationNoPhone = "No phone number available";
 const locationNoAddress = "No address available";
 const askQuestions = "Ask me questions!";
+const calciferSays = "What Calcifer says:";
 
 //FAQ
 const askHint = "What would you like to know?";
