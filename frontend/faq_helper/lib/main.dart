@@ -115,17 +115,22 @@ class _MyHomePageState extends State<MyHomePage> {
                     //     : MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
+                      AnimatedContainer(
+                        curve: Curves.easeOutCirc,
+                        duration: const Duration(milliseconds: 200),
+                        height: _isSearching ? 0 : 200,
+                      ),
                       AnimatedDefaultTextStyle(
                         style: _isSearching
                             ? const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
-                                fontSize: 20,
+                                fontSize: 30,
                               )
                             : const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
-                                fontSize: 50,
+                                fontSize: 60,
                               ),
                         curve: Curves.easeOutCirc,
                         duration: const Duration(milliseconds: 200),
@@ -236,15 +241,15 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            _isSearching = !_isSearching;
-          });
-        },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     setState(() {
+      //       _isSearching = !_isSearching;
+      //     });
+      //   },
+      //   tooltip: 'Increment',
+      //   child: const Icon(Icons.add),
+      // ),
     );
   }
 }

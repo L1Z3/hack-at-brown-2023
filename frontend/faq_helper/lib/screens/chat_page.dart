@@ -1,8 +1,10 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:faq_helper/utilities/network.dart';
 import 'package:faq_helper/values/colors.dart';
 import 'package:faq_helper/values/margins.dart';
 import 'package:faq_helper/values/phrases.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ChatPage extends StatefulWidget {
   final String title;
@@ -25,15 +27,39 @@ class _ChatPageState extends State<ChatPage> {
 
   void buildChatBubbles() {
     chatBubbleList = [
-      WordBubble(content: initialMessage(widget.title), fromBot: true)
+      WordBubble(
+        content: initialMessage(widget.title),
+        fromBot: true,
+        mostRecent: false,
+      )
     ];
     for (int i = 0; i < queries.length; i++) {
-      chatBubbleList.insert(0, WordBubble(content: queries[i], fromBot: false));
-      if (responses.length > i) {
+      chatBubbleList.insert(
+          0,
+          WordBubble(
+            content: queries[i],
+            fromBot: false,
+            mostRecent: false,
+          ));
+      // If it's the last element of responses but there are more queries
+      if (responses.length - 1 == i && queries.length - 1 == i) {
         chatBubbleList.insert(
-            0, WordBubble(content: responses[i], fromBot: true));
+            0,
+            WordBubble(
+              content: responses[i],
+              fromBot: true,
+              mostRecent: true,
+            ));
+      } else if (responses.length > i) {
+        chatBubbleList.insert(
+            0,
+            WordBubble(
+              content: responses[i],
+              fromBot: true,
+              mostRecent: false,
+            ));
       } else {
-        print("Responses isn't ready yet");
+        chatBubbleList.insert(0, ThinkingBubble());
       }
     }
   }
@@ -45,7 +71,7 @@ class _ChatPageState extends State<ChatPage> {
     String question = _askController.text;
     _askController.clear();
     queries.add(question);
-    chatBubbleList.insert(0, WordBubble(content: question, fromBot: false));
+    chatBubbleList.insert(0, WordBubble(content: question, fromBot: false, mostRecent: false,));
     setState(() {});
     try {
       String answer =
@@ -56,7 +82,7 @@ class _ChatPageState extends State<ChatPage> {
       responses.add(askUnableToRetrieve);
     }
     chatBubbleList.insert(
-        0, WordBubble(content: responses.last, fromBot: true));
+        0, WordBubble(content: responses.last, fromBot: true, mostRecent: false,));
     thinking = false;
     setState(() {});
   }
@@ -154,8 +180,13 @@ class _ChatPageState extends State<ChatPage> {
 class WordBubble extends StatelessWidget {
   final String content;
   final bool fromBot;
+  final bool mostRecent;
 
-  const WordBubble({super.key, required this.content, required this.fromBot});
+  const WordBubble(
+      {super.key,
+      required this.content,
+      required this.fromBot,
+      required this.mostRecent});
 
   @override
   Widget build(BuildContext context) {
@@ -177,12 +208,30 @@ class WordBubble extends StatelessWidget {
           ),
           child: Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(messagesRoundRadius),
-              gradient: fromBot ? aiMessageGradient : userMessageGradient,
-            ),
+                borderRadius: BorderRadius.circular(messagesRoundRadius),
+                gradient: fromBot ? aiMessageGradient : userMessageGradient,
+                boxShadow: [
+                  BoxShadow(
+                    color: mostRecent ? Colors.pink : Colors.transparent,
+                    blurRadius: 10.0,
+                    spreadRadius: 2.0,
+                  ),
+                ]),
             child: Padding(
               padding: const EdgeInsets.all(messageInnerPadding),
-              child: Text(
+              child: mostRecent ?
+              AnimatedTextKit(
+                animatedTexts: [
+                  TypewriterAnimatedText(
+                    content,
+                    textStyle: TextStyle(color: Colors.white, fontSize: 18.0),
+                    cursor: "_",
+                    // rotateOut: false,
+                  ),
+                ],
+                repeatForever: false,
+                isRepeatingAnimation: false,
+              ) : Text(
                 content,
                 overflow: TextOverflow.fade,
                 style: TextStyle(
@@ -199,6 +248,43 @@ class WordBubble extends StatelessWidget {
 class ThinkingBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Container(
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.only(
+            right: messagesOppositeSpace, left: messagesOwnSideSpace),
+        child: Card(
+          elevation: 0.0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(messagesRoundRadius),
+            side: BorderSide(
+              color: Colors.white,
+            ),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(messagesRoundRadius),
+              gradient: aiMessageGradient,
+            ),
+            child: Shimmer.fromColors(
+              baseColor: aiMessageColorBot,
+              highlightColor: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(messageInnerPadding),
+                child: AnimatedTextKit(
+                  animatedTexts: [
+                    TyperAnimatedText(
+                      "Thinking...",
+                      textStyle: TextStyle(color: Colors.white, fontSize: 18.0),
+                    ),
+                  ],
+                  repeatForever: true,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
