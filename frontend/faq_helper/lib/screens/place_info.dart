@@ -138,16 +138,7 @@ class _PlaceInfoState extends State<PlaceInfo> {
                                 ],
                               ),
                               PhoneNumberButton(number: _placeData.phone),
-                              Padding(
-                                padding: const EdgeInsets.all(14.0),
-                                child: Center(
-                                  child: Text(
-                                    _placeData.address,
-                                    style: placeAddressStyle,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
+                              AddressButton(address: _placeData.address),
                               Padding(
                                 padding: const EdgeInsets.all(14.0),
                                 child: _placeData.hasDesc()
@@ -245,6 +236,50 @@ class PhoneNumberButton extends StatelessWidget {
             ),
             const Text(
               locationNoPhone,
+              style: phoneNumberStyle,
+            ),
+          ],
+        ));
+  }
+}
+
+class AddressButton extends StatelessWidget {
+  final String address;
+
+  const AddressButton({super.key, required this.address});
+
+  void _launchAddr() async {
+    Uri url = Uri.parse('https://www.google.com/maps/search/?api=1&query=$address');
+    if (!await launchUrl(url)) {
+      throw 'Could not launch $url';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (address != "None") {
+      return TextButton(
+          onPressed: _launchAddr,
+          child: Expanded(
+            child: Text(
+              address,
+              style: phoneNumberStyle,
+              overflow: TextOverflow.fade,
+              textAlign: TextAlign.center,
+            ),
+          ));
+    }
+    return TextButton(
+        onPressed: () {},
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.map_outlined),
+            SizedBox(
+              width: 10,
+            ),
+            const Text(
+              locationNoAddress,
               style: phoneNumberStyle,
             ),
           ],
