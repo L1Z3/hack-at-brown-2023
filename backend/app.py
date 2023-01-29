@@ -82,11 +82,21 @@ def get_place_info_api(place_id: str) -> Tuple:
     response = requests.get(url)
     # Get the JSON data from the response
     data = response.json()["result"]
+    # print(data)
     reviews_str_list = []
     for review in data["reviews"]:
         reviews_str_list.append(review["text"])
-    return data["name"], reviews_str_list, data["formatted_address"], data["formatted_phone_number"], "None", data[
-        "rating"], "None"
+    description, address, number, rating = "None", "None", "None", "None"
+    if "editorial_summary" in data:
+        description = data["editorial_summary"]["overview"]
+    if "formatted_address" in data:
+        address = data["formatted_address"]
+    if "formatted_phone_number" in data:
+        number = data["formatted_phone_number"]
+    if "rating" in data:
+        rating = data["rating"]
+
+    return data["name"], reviews_str_list, address, number, description, rating, "None"
 
 
 def get_gpt3_response(input_text: str, max_tokens: int) -> str:
@@ -154,8 +164,6 @@ error:
     "error": "..."
 }
 """
-
-
 @app.route('/get_place_info', methods=['POST'])
 def get_place_info():
     data = request.get_json()
@@ -163,17 +171,13 @@ def get_place_info():
         return jsonify({"error": "place_id not in request!!!!"})
     place_id = data["place_id"]
     # num_reviews = 5
-    if num_reviews <= 5:
-        name, reviews, address, phone, description, rating, photo = get_place_info_api(place_id)
-    else:
-        name, reviews, address, phone, description, rating, photo = get_reviews_api(place_id, num_reviews)
-    # TODO separately send data and gpt response
+    # if num_reviews <= 5:
+    name, reviews, address, phone, description, rating, photo = get_place_info_api(place_id)
+    # else:
+    #     name, reviews, address, phone, description, rating, photo = get_reviews_api(place_id, num_reviews)
     # TODO also send reviews so you can view source reviews
-    prompt = generate_summary_prompt(name, reviews)
-    gpt_summary = get_gpt3_response(prompt, 250)
     response = {
         "name": name,
-        "summary": gpt_summary,
         "address": address,
         "phone": phone,
         "description": description,
@@ -182,6 +186,35 @@ def get_place_info():
     }
     return jsonify(response)
 
+"""
+example in:
+{
+    "place_id": "ChIJpy7YpHF_44kRZ0CG8kUMwn8",
+    "max_reviews": 5
+}
+"""
+@app.route('/get_summary', methods=['POST'])
+def get_summary():
+    data = request.get_json()
+    if "place_id" not in data:
+        return jsonify({"error": "place_id not in request!!!!"})
+    place_id = data["place_id"]
+    if "max_reviews" in data and type(data["max_reviews"]) is int:
+        cur_num_reviews = data["max_reviews"]
+    else:
+        cur_num_reviews = num_reviews
+    # num_reviews = 5
+    if cur_num_reviews <= 5:
+        name, reviews, _, _, _, _, _ = get_place_info_api(place_id)
+    else:
+        name, reviews, _, _, _, _, _ = get_reviews_api(place_id, cur_num_reviews)
+    # TODO also send reviews so you can view source reviews
+    prompt = generate_summary_prompt(name, reviews)
+    gpt_summary = get_gpt3_response(prompt, 250)
+    response = {
+        "summary": gpt_summary,
+    }
+    return jsonify(response)
 
 """
 example in:
@@ -219,7 +252,7 @@ def ask_question():
 
 if __name__ == '__main__':
     app.run()
-    # print(get_place_info_api("ChIJw4LLjb5MQIgR-ZmtAqdA7jE"))
+    # print(get_place_info_api("ChIJKY6zkCRF5IkRyyCi9_xpfgs"))
     # print(get_gpt3_response("Hi, how's it going?", 250))
     # print(get_reviews_api("ChIJpy7YpHF_44kRZ0CG8kUMwn8"))
     # data = get_reviews_api("ChIJpy7YpHF_44kRZ0CG8kUMwn8", 1)
