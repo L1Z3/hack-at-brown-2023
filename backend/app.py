@@ -1,7 +1,7 @@
 import os
 import requests
 import pickle
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 import openai
 from outscraper import ApiClient
 from flask import Flask, redirect, render_template, request, session, url_for, jsonify
@@ -77,7 +77,7 @@ def get_reviews_api(place: str, number_of_reviews: int = 5) -> Tuple:
 
 @memoize
 def get_place_info_api(place_id: str) -> Tuple:
-    url = f'https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&fields=name,formatted_address,formatted_phone_number,formatted_phone_number,rating,user_ratings_total,review,editorial_summary&key={places_api_key}'
+    url = f'https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&fields=name,formatted_address,formatted_phone_number,formatted_phone_number,rating,user_ratings_total,review,editorial_summary,photos&key={places_api_key}'
     # Send the GET request to the Places API
     response = requests.get(url)
     # Get the JSON data from the response
@@ -87,7 +87,7 @@ def get_place_info_api(place_id: str) -> Tuple:
     if "reviews" in data:
         for review in data["reviews"]:
             reviews_str_list.append(review["text"])
-    description, address, number, rating = "None", "None", "None", "None"
+    description, address, number, rating, photo_id = "None", "None", "None", "None", "None"
     if "editorial_summary" in data:
         description = data["editorial_summary"]["overview"]
     if "formatted_address" in data:
@@ -96,8 +96,12 @@ def get_place_info_api(place_id: str) -> Tuple:
         number = data["formatted_phone_number"]
     if "rating" in data:
         rating = data["rating"]
+    if "photos" in data:
+        if len(data["photos"]) > 0:
+            photo_id = data["photos"][0]["photo_reference"]
+    
 
-    return data["name"], reviews_str_list, address, number, description, rating, "None"
+    return data["name"], reviews_str_list, address, number, description, rating, photo_id
 
 
 def get_gpt3_response(input_text: str, max_tokens: int) -> str:
@@ -116,7 +120,7 @@ def get_gpt3_response(input_text: str, max_tokens: int) -> str:
 
 def generate_summary_prompt(place_name: str, reviews: List[str]) -> str:
     output_tokens = 250
-    input_max_tokens = 4000 - output_tokens - 20
+    input_max_tokens = 4000 - output_tokens - 100
     prompt = f"Below are a variety of reviews for a place called \"{place_name}\". \n\n"
     num_used = 0
     for review in reviews:
@@ -131,10 +135,17 @@ def generate_summary_prompt(place_name: str, reviews: List[str]) -> str:
     return prompt
 
 
-def generate_question_prompt(place_name: str, reviews: List[str], question: str):
+def generate_question_prompt(place_name: str, reviews: List[str], question: str, address: Optional[str] = None, phone: Optional[str] = None, description: Optional[str] = None):
     output_tokens = 250
     input_max_tokens = 4000 - output_tokens - 30 - get_num_tokens(question)
-    prompt = f"Below are a variety of reviews for a place called \"{place_name}\". \n\n"
+    prompt = f"I will give a variety of reviews for a place called \"{place_name}\". \n"
+    if address is not None:
+        prompt += f"The address for this place is \"{address}\". "
+    if phone is not None:
+        prompt += f"The phone number for this place is \"{phone}\". "
+    if description is not None:
+        prompt += f"A brief description of this place is \"{description}\. "
+    prompt += "\n\n"
     num_used = 0
     for review in reviews:
         new_prompt = prompt + "Here is a review:\n" + review
@@ -142,7 +153,8 @@ def generate_question_prompt(place_name: str, reviews: List[str], question: str)
             break
         prompt = new_prompt + "\n\n"
         num_used += 1
-    prompt = prompt + "\n\n" + f"Now, based on the reviews, generate a useful answer to the following question from a person looking to attend this place: \n\"{question}\""
+    prompt = prompt + "\n\n" + f"You are a helpful travel assistant AI called Calcifer, named after the character from the movie Howl's Moving Castle. " \
+                               f"Now, based on the reviews and given info, generate a useful answer to the following question from a person looking to attend this place: \n\"{question}\""
     print(prompt)
     print(f"-----------Used {num_used} reviews in about prompt.-----------")
     return prompt
@@ -171,7 +183,8 @@ def get_place_info():
     place_id = data["place_id"]
     # num_reviews = 5
     # if num_reviews <= 5:
-    name, reviews, address, phone, description, rating, photo = get_place_info_api(place_id)
+    # name, reviews, address, phone, description, rating, _ = get_place_info_api(place_id)
+    name, reviews, address, phone, description, rating, photo = get_reviews_api(place_id, 1)
     # else:
     #     name, reviews, address, phone, description, rating, photo = get_reviews_api(place_id, num_reviews)
     # TODO also send reviews so you can view source reviews
@@ -245,13 +258,13 @@ def ask_question():
         cur_num_reviews = num_reviews
     # num_reviews = 5
     if cur_num_reviews <= 5:
-        name, reviews, _, _, _, _, _ = get_place_info_api(place_id)
+        name, reviews, address, number, description, _, _ = get_place_info_api(place_id)
     else:
-        name, reviews, _, _, _, _, _ = get_reviews_api(place_id, cur_num_reviews)
+        name, reviews, address, number, description, _, _ = get_reviews_api(place_id, cur_num_reviews)
     if len(reviews) == 0:
         gpt_answer = "I'm sorry. This place has no reviews."
     else:
-        prompt = generate_question_prompt(name, reviews, question)
+        prompt = generate_question_prompt(name, reviews, question, address, number, description)
         gpt_answer = get_gpt3_response(prompt, 250)
     response = {
         "answer": gpt_answer
@@ -259,11 +272,11 @@ def ask_question():
     return jsonify(response)
 
 
-if __name__ == '__main__':
-    app.run()
+# if __name__ == '__main__':
+#     app.run()
     # print(get_place_info_api("ChIJKY6zkCRF5IkRyyCi9_xpfgs"))
     # print(get_gpt3_response("Hi, how's it going?", 250))
-    # print(get_reviews_api("ChIJQdr1UryyQYgRaUnFwsH2AOs"))
+    # print(get_reviews_api("ChIJQdr1UryyQYgRaUnFwsH2AOs", 1))
     # data = get_reviews_api("ChIJpy7YpHF_44kRZ0CG8kUMwn8", 1)
     # prompt = generate_summary_prompt(data["name"], data["reviews"])
     # print(prompt)
