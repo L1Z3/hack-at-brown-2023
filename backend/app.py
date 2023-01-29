@@ -269,3 +269,7 @@ if __name__ == '__main__':
     # print(prompt)
     # print("\n\n")
     # print(get_gpt3_response(prompt, 250))
+
+if __name__ == "__main__":
+    from waitress import serve
+    serve(app, host="0.0.0.0", port=25565)
